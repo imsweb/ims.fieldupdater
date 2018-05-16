@@ -1,0 +1,257 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US"
+      lang="en-US"
+      metal:use-macro="context/prefs_main_template/macros/master"
+      i18n:domain="ims.fieldupdater">
+
+<tal:block metal:fill-slot="top_slot">
+    <tal:block tal:define="dummy python:request.set('disable_border',1)"/>
+</tal:block>
+
+<body>
+<div metal:fill-slot="prefs_configlet_main"
+     tal:define="errors python:request.get('errors', {});
+                 search python:request.get('search', '');
+                 schema python:request.get('schema', '');
+                 field python:request.get('field', '');
+                 fkey python:request.get('fkey', '');
+                 match python:request.get('match', '');
+                 values view/get_values;
+                 results view/results">
+
+    <h1 i18n:translate="heading_schema_field_manager">Schema Field Manager</h1>
+
+    <a href=""
+       class="link-parent"
+       tal:attributes="href string: $portal_url/plone_control_panel"
+       i18n:domain="plone"
+       i18n:translate="label_up_to_plone_setup">
+        Up to Plone Setup
+    </a>
+
+    <div class="documentDescription"
+         i18n:translate="description_keyword_manager">
+        The Schema field manager allows you to delete and merge fields in your portal. As a reminder, you can
+        use the <a tal:attributes="href string:${context/absolute_url}/manage_UndoForm">undo form</a> to rollback
+        changes.
+    </div>
+
+    <tal:schema_fields tal:define="schemas view/get_schemas;">
+        <form action="mass-edit" method="get"
+              tal:attributes="action string:${context/absolute_url}/mass-edit">
+            <fieldset>
+                <legend>
+                    Choose Schema
+                </legend>
+
+                <div class="field">
+                    <label for="schemafield" i18n:translate="label_schema_field">
+                        Schema
+                    </label>
+
+                    <select id="schemafield" name="schema"
+                            onchange="javascript:this.form.submit()">
+                        <option tal:repeat="fld schemas"
+                                tal:attributes="value fld/id;
+                                            selected python:fld['id']==schema;"
+                                i18n:translate=""
+                                i18n:domain="plone"
+                                tal:content="fld/title"/>
+                    </select>
+
+                    <span tal:condition="schema"
+                          tal:define="schema_matches python:view.schema_matches(schema)"
+                          tal:content="string:Objects providing this interface: ${schema_matches}">
+                        subset
+                    </span>
+                </div>
+
+                <div class="formControls">
+                    <input class="standalone"
+                           type="submit"
+                           value="Select Schema"
+                           i18n:attributes="value"/>
+                </div>
+
+            </fieldset>
+        </form>
+    </tal:schema_fields>
+
+    <tal:schema_selected condition="schema">
+        <form action="mass-edit" method="get"
+              tal:define="fields view/get_fields"
+              tal:attributes="action string:${context/absolute_url}/mass-edit">
+
+            <input type="hidden" name="schema" tal:attributes="value schema"/>
+            <fieldset>
+                <legend>
+                    Choose Field
+                </legend>
+
+                <div class="field">
+                    <label for="fieldfield" i18n:translate="label_field_field">
+                        Field
+                    </label>
+
+                    <select id="fieldfield" name="field"
+                            onchange="javascript:this.form.submit()">
+                        <option tal:repeat="fld fields"
+                                tal:attributes="value fld/id;
+                                            selected python:fld['id']==field;"
+                                i18n:translate=""
+                                i18n:domain="plone"
+                                tal:content="fld/title"/>
+                    </select>
+                </div>
+
+                <div class="formControls">
+                    <input class="standalone"
+                           type="submit"
+                           value="Select Field"
+                           i18n:attributes="value"/>
+                </div>
+
+            </fieldset>
+        </form>
+    </tal:schema_selected>
+
+    <tal:schema_data_grid condition="view/is_dg">
+        <form action="mass-edit" method="get"
+              tal:define="dgkeys view/get_dgkeys"
+              tal:attributes="action string:${context/absolute_url}/mass-edit">
+
+            <input type="hidden" name="schema" tal:attributes="value schema"/>
+            <input type="hidden" name="field" tal:attributes="value field"/>
+            <fieldset>
+                <legend>
+                    Choose DataGrid Key
+                </legend>
+
+                <div class="field">
+                    <label for="fkeyfield" i18n:translate="labelfkey_field">
+                        Key
+                    </label>
+
+                    <select id="dgkeyfield" name="fkey"
+                            onchange="javascript:this.form.submit()">
+                        <option tal:repeat="dgkey dgkeys"
+                                tal:attributes="value dgkey/id;
+                                            selected python:dgkey['id']==fkey;"
+                                i18n:translate=""
+                                i18n:domain="plone"
+                                tal:content="dgkey/title"/>
+                    </select>
+                </div>
+
+                <div class="formControls">
+                    <input class="standalone"
+                           type="submit"
+                           value="Select DataGrid Key"
+                           i18n:attributes="value"/>
+                </div>
+
+            </fieldset>
+        </form>
+    </tal:schema_data_grid>
+
+    <tal:unsupported condition="view/unsupported">
+        Unsupported value type for this field: <span tal:content="view/unsupported"/>. Unfortunately this data
+        type is not convertable through this form.
+    </tal:unsupported>
+
+    <tal:values condition="values">
+        <form action="mass-edit" method="get"
+              tal:attributes="action string:${context/absolute_url}/mass-edit">
+
+            <input type="hidden" name="schema" tal:attributes="value schema"/>
+            <input type="hidden" name="field" tal:attributes="value field"/>
+            <input type="hidden" name="fkey" tal:attributes="value fkey"/>
+            <fieldset>
+                <legend>
+                    Choose Current Value
+                </legend>
+
+                <div class="field">
+                    <label for="fkeyfield" i18n:translate="labelfkey_field">
+                        Matching Value
+                    </label>
+
+                    <select id="valuefield" name="match"
+                            onchange="javascript:this.form.submit()">
+                        <option tal:repeat="value values"
+                                tal:attributes="value value;
+                                            selected python:value==match;"
+                                i18n:translate=""
+                                i18n:domain="plone"
+                                tal:content="value"/>
+                    </select>
+                </div>
+
+                <div class="formControls">
+                    <input class="standalone"
+                           type="submit"
+                           name="form.button.Merge"
+                           title="Select value"
+                           i18n:attributes="value; title"
+                           value="Select value">
+                </div>
+            </fieldset>
+        </form>
+    </tal:values>
+
+    <tal:replace_or_delete tal:condition="results">
+        <form action="mass-edit" method="post"
+              tal:attributes="action string:${context/absolute_url}/mass-edit">
+            <input type="hidden" name="schema" tal:attributes="value schema"/>
+            <input type="hidden" name="field" tal:attributes="value field"/>
+            <input type="hidden" name="fkey" tal:attributes="value fkey"/>
+            <input type="hidden" name="match" tal:attributes="value match"/>
+
+            <fieldset>
+                <legend>
+                    Current Matches
+                </legend>
+
+                <ul>
+                    <tal:result repeat="result results">
+                        <li>
+                            <a tal:attributes="href result/getURL"
+                               tal:content="result/Title"/>
+                        </li>
+                    </tal:result>
+                </ul>
+
+                <div class="field">
+                    <div class="error"
+                         tal:define="err errors/changeto|nothing"
+                         tal:condition="err"
+                         tal:content="err" i18n:translate="">
+                        Error message goes here
+                    </div>
+                    <label for="replacement" i18n:translate="">Value to apply</label>
+                    <!--<input id="replacement" type="text" name="replacement"/>-->
+                    <input type="hidden" name="replacement_marker" value="1"/>
+                    <span tal:replace="structure python:view.replacement_widget.render()"/>
+                </div>
+
+                <div class="formControls">
+                    <input class="destructive"
+                           type="submit"
+                           name="form.button.Merge"
+                           title="Replace all values"
+                           i18n:attributes="value; title"
+                           value="Replace">
+
+                    <input class="destructive"
+                           id="input_delete_keyword"
+                           type="submit"
+                           name="form.button.Delete"
+                           i18n:attributes="value; title"
+                           title="Remove all selected keywords"
+                           value="Delete"/>
+                </div>
+            </fieldset>
+        </form>
+    </tal:replace_or_delete>
+</div>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<configure
+        xmlns="http://namespaces.zope.org/zope"
+        xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+        i18n_domain="ims.fieldupdater">
+
+    <include package=".browser"/>
+
+    <genericsetup:registerProfile
+            name="default"
+            title="ims.entrez"
+            directory="profiles/default"
+            description="Extension profile for ims.entrez."
+            provides="Products.GenericSetup.interfaces.EXTENSION"/>
+
+</configure>
