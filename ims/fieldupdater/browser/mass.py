@@ -14,6 +14,7 @@ from zope.component import getMultiAdapter, getUtilitiesFor
 from zope.event import notify
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.schema.interfaces import WrongType
+from .. import _
 
 
 class MassEditForm(BrowserView):
@@ -32,7 +33,11 @@ class MassEditForm(BrowserView):
 
         if self.request.form.get('form.button.Merge', ''):
             if replacement:
-                self.replace_term(schema, field, fkey, match)
+                try:
+                    self.replace_term(schema, field, fkey, match)
+                except Exception, e:
+                    plone.api.portal.show_message(message='Failed to validate: %s' % e.__repr__(), request=self.request,
+                                                  type='error')
             else:
                 plone.api.portal.show_message(message=u'Please enter a replacement value.', request=self.request)
         elif self.request.form.get('form.button.Delete', ''):
@@ -219,8 +224,8 @@ class MassEditForm(BrowserView):
             except WrongType:
                 # for some reason some things that should come in as unicode are coming in as strings
                 replacement = IDataConverter(widget).toFieldValue(IDataConverter(widget).toWidgetValue(replacement))
-        if not replacement:
-            plone.api.portal.show_message(message=_(u'No replacement value given'), request=self.request, info='error')
+        if not replacement or replacement is NO_VALUE:
+            plone.api.portal.show_message(message=_(u'No replacement value given'), request=self.request, type='error')
             return
 
         for brain in self.results():
