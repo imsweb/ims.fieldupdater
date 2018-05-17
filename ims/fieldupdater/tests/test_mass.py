@@ -47,7 +47,8 @@ class TestMassIntegration(base.IntegrationTestCase):
         self.view.request['field'] = field
         self.view.request['match'] = match
         self.view.request['replacement'] = replacement
-        self.assertRaises(WrongType, self.view.replace_term, schema, field, None, match)
+        self.view.replace_term(schema, field, None, match)
+        self.assertEquals(self.page1.list_choice_field, [u'hawking', u'bohr'])
 
     def test_list_choice_replace(self):
         self.page1.list_choice_field = [u'einstein', u'bohr']
@@ -122,7 +123,9 @@ class TestMassIntegration(base.IntegrationTestCase):
         self.view.request['field'] = field
         self.view.request['match'] = match
         self.view.request['replacement'] = replacement
-        self.assertRaises(WrongType, self.view.replace_term, schema, field, None, match)
+        self.view.replace_term(schema, field, None, match)
+        self.assertEquals(self.page1.text_field, u'hawking')
+        self.assertIsInstance(self.page1.text_field, unicode)
 
 
 def test_suite():

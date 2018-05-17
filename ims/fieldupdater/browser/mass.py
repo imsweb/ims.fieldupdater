@@ -2,16 +2,18 @@ import datetime
 
 import plone.api
 from DateTime import DateTime
+from Products.CMFPlone.utils import safe_unicode as su
 from Products.Five import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from collective.z3cform.datagridfield.row import DictRow
-from plone.behavior.interfaces import IBehavior
 from plone.dexterity.events import EditFinishedEvent
 from plone.dexterity.utils import resolveDottedName
 from z3c.form.interfaces import IFieldWidget, NO_VALUE, IDataConverter
+from plone.behavior.interfaces import IBehavior
 from zope.component import getMultiAdapter, getUtilitiesFor
 from zope.event import notify
 from zope.lifecycleevent import ObjectModifiedEvent
+from zope.schema.interfaces import WrongType
 
 
 class MassEditForm(BrowserView):
@@ -30,11 +32,7 @@ class MassEditForm(BrowserView):
 
         if self.request.form.get('form.button.Merge', ''):
             if replacement:
-                try:
-                    self.replace_term(schema, field, fkey, match)
-                except Exception, e:
-                    plone.api.portal.show_message(message='Failed to validate: %s' % e.__repr__(), request=self.request,
-                                                  type='error')
+                self.replace_term(schema, field, fkey, match)
             else:
                 plone.api.portal.show_message(message=u'Please enter a replacement value.', request=self.request)
         elif self.request.form.get('form.button.Delete', ''):
@@ -52,9 +50,9 @@ class MassEditForm(BrowserView):
         Behavior schema cache.
         :return: dotted name of interfaces
         """
-        # behaviors = tuple([behav[1].interface.__identifier__ for behav in getUtilitiesFor(IBehavior)])
+        behaviors = tuple([behav[1].interface.__identifier__ for behav in getUtilitiesFor(IBehavior)])
         catalog = plone.api.portal.get_tool('portal_catalog')
-        interfaces = sorted(list(set(catalog.uniqueValuesFor('object_provides'))), # + behaviors)),
+        interfaces = sorted(list(set(catalog.uniqueValuesFor('object_provides') + behaviors)),
                             key=lambda term: term.split('.')[-1])
         for interface in interfaces:
             if resolveDottedName(interface).names():
@@ -216,8 +214,11 @@ class MassEditForm(BrowserView):
         widget = self.replacement_widget
         replacement = widget.extract()
         if replacement is not NO_VALUE:
-            # we don't do validation until we get the object
-            replacement = IDataConverter(widget).toFieldValue(replacement)
+            try:
+                replacement = IDataConverter(widget).toFieldValue(replacement)
+            except WrongType:
+                # for some reason some things that should come in as unicode are coming in as strings
+                replacement = IDataConverter(widget).toFieldValue(IDataConverter(widget).toWidgetValue(replacement))
         if not replacement:
             plone.api.portal.show_message(message=_(u'No replacement value given'), request=self.request, info='error')
             return
@@ -270,7 +271,7 @@ class MassEditForm(BrowserView):
             else:
                 self.set_value(obj, schema, field, None)
 
-    def set_value(self, obj, dottedname, field, field_value):
+    def set_value(self, obj, dottedname, field, field_value, attempts=0):
         """
         Set the value for an object's field. Values must be validated as defined in the schema. This can be called
         recursively as a sort of hack where zope.schema gets finicky between unicode and str.
@@ -281,14 +282,30 @@ class MassEditForm(BrowserView):
         :param attempts: recursive attempts made
         :return:
         """
+        attempt_limit = 1  # some of the more common validation problems are unicode where it expects ascii
+        # or vice versa. Try once
         schema = resolveDottedName(dottedname)
         bound = schema[field].bind(obj)
-        bound.validate(field_value)
-        setattr(obj, field, field_value)
-        notify(ObjectModifiedEvent(obj))
-        notify(EditFinishedEvent(obj))
-        obj.reindexObject()
-        plone.api.portal.show_message(message='Successfully updated value', request=self.request)
+        try:
+            bound.validate(field_value)
+        except WrongType, e:
+            if attempts < attempt_limit:
+                attempts += 1
+                if isinstance(field_value, unicode):
+                    field_value = str(field_value)
+                    return self.set_value(obj, dottedname, field, field_value, attempts)
+                elif isinstance(field_value, str):
+                    field_value = su(field_value)
+                    return self.set_value(obj, dottedname, field, field_value, attempts)
+            else:
+                plone.api.portal.show_message(message='Failed to validate: %s' % e.__repr__(), request=self.request,
+                                              type='error')
+        else:
+            setattr(obj, field, field_value)
+            notify(ObjectModifiedEvent(obj))
+            notify(EditFinishedEvent(obj))
+            obj.reindexObject()
+            plone.api.portal.show_message(message='Successfully updated value', request=self.request)
 
     @property
     def replacement_widget(self):

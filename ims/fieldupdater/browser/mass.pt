@@ -31,7 +31,8 @@
     <div class="documentDescription"
          i18n:translate="description_keyword_manager">
         The Schema field manager allows you to delete and merge fields in your portal. As a reminder, you can
-        use the <a tal:attributes="href string:${context/absolute_url}/manage_UndoForm">undo form</a> to rollback
+        use the <a target="_blank" tal:attributes="href string:${context/absolute_url}/manage_UndoForm">undo form</a> to
+        rollback
         changes.
     </div>
 
@@ -198,6 +199,10 @@
         </form>
     </tal:values>
 
+    <tal:no_results tal:condition="python:field and not results">
+        No values found for this field.
+    </tal:no_results>
+
     <tal:replace_or_delete tal:condition="results">
         <form action="mass-edit" method="post"
               tal:attributes="action string:${context/absolute_url}/mass-edit">
@@ -215,7 +220,8 @@
                     <tal:result repeat="result results">
                         <li>
                             <a tal:attributes="href result/getURL"
-                               tal:content="result/Title"/>
+                               tal:content="result/Title"
+                               target="_blank"/>
                         </li>
                     </tal:result>
                 </ul>
