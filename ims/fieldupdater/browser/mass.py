@@ -218,7 +218,8 @@ class MassEditForm(BrowserView):
         """
         widget = self.replacement_widget
         replacement = widget.extract()
-        if replacement is not NO_VALUE:
+        if replacement is not NO_VALUE and not self.is_dg():
+            # this doesn't work on dgf?
             try:
                 replacement = IDataConverter(widget).toFieldValue(replacement)
             except WrongType:
