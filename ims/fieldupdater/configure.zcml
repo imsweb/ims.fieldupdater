@@ -7,9 +7,9 @@
 
     <genericsetup:registerProfile
             name="default"
-            title="ims.entrez"
+            title="ims.fieldupdater"
             directory="profiles/default"
-            description="Extension profile for ims.entrez."
+            description="Extension profile for ims.fieldupdater."
             provides="Products.GenericSetup.interfaces.EXTENSION"/>
 
 </configure>
