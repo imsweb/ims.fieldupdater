@@ -37,6 +37,7 @@ class TestMassIntegration(base.IntegrationTestCase):
         self.assertEquals(self.page2.list_field, [u'fermi', u'heisenberg'])  # sanity - no change
 
     def test_list_replace_wrong_type(self):
+        """ str converted to unicode """
         self.page1.list_field = [u'einstein', u'bohr']
         self.page2.list_field = [u'fermi', u'heisenberg']
         match = u'einstein'
@@ -48,9 +49,10 @@ class TestMassIntegration(base.IntegrationTestCase):
         self.view.request['match'] = match
         self.view.request['replacement'] = replacement
         self.view.replace_term(schema, field, None, match)
-        self.assertEquals(self.page1.list_choice_field, [u'hawking', u'bohr'])
+        self.assertEquals(self.page1.list_field, [u'hawking', u'bohr'])
 
     def test_list_choice_replace(self):
+        """ A term outside of vocab will come in as NO_VALUE and result in no change """
         self.page1.list_choice_field = [u'einstein', u'bohr']
         self.page2.list_choice_field = [u'fermi', u'heisenberg']
         match = u'einstein'
@@ -76,7 +78,8 @@ class TestMassIntegration(base.IntegrationTestCase):
         self.view.request['field'] = field
         self.view.request['match'] = match
         self.view.request['replacement'] = replacement
-        self.assertRaises(WrongContainedType, self.view.replace_term, schema, field, None, match)
+        self.view.replace_term(schema, field, None, match)
+        self.assertNotIn('dirac', self.page1.list_choice_field)
 
     def test_textline_replace(self):
         self.page1.text_field = u'einstein'
