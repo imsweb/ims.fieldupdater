@@ -107,17 +107,22 @@ class MassEditForm(BrowserView):
         interface = resolveDottedName(schema)
         return hasattr(interface[field], 'value_type') and isinstance(interface[field].value_type, DictRow)
 
-    def get_dgkeys(self):
-        """
-        Get DataGridField schema keys
-        :return:
+    def get_dgschema(self):
+        """ Look up the schema used for the dg field
         """
         schema = self.request.get('schema', None)
         field = self.request.get('field', None)
         if not field or not schema:
             return
         interface = resolveDottedName(schema)
-        dg_schema = interface[field].value_type.schema
+        return interface[field].value_type.schema
+
+    def get_dgkeys(self):
+        """
+        Get DataGridField schema keys
+        :return:
+        """
+        dg_schema = self.get_dgschema()
         for dg_field in dg_schema.names():
             yield {
                 'id': dg_field,
@@ -238,13 +243,9 @@ class MassEditForm(BrowserView):
                 self.set_value(obj, schema, field, replacement)
             elif isinstance(field_value, tuple) or isinstance(field_value, list):
                 if fkey:
-                    if replacement in field_value:  # already here
-                        field_value = [item_value for item_value in field_value if item_value != match]
-                    else:
-                        idxs = [field_value.index(item_value) for item_value in field_value if
-                                item_value[fkey] == match]
-                        for idx in idxs:
-                            field_value[idx] = replacement
+                    for item_value in field_value:
+                        if item_value[fkey] == match:
+                            item_value[fkey] = replacement[0]
                     self.set_value(obj, schema, field, field_value)
                 else:
                     if replacement in field_value:
@@ -321,12 +322,16 @@ class MassEditForm(BrowserView):
         widget wouldn't make sense. So for schema.List(value_type=Choice()) we would render that Choice
         :return: widget
         """
-        schema = self.request.get('schema', None)
-        schema = resolveDottedName(schema)
-        field = self.request.get('field', None)
-        field = schema[field]
-        if hasattr(field, 'value_type'):
-            field = field.value_type
+        if self.is_dg():
+            fkey = self.request['fkey']
+            field = self.get_dgschema()[fkey]
+        else:
+            schema = self.request.get('schema', None)
+            schema = resolveDottedName(schema)
+            field = self.request.get('field', None)
+            field = schema[field]
+            if hasattr(field, 'value_type'):
+                field = field.value_type
 
         widget = getMultiAdapter((field, self.request), IFieldWidget)
         widget.name = 'replacement'
