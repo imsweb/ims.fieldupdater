@@ -223,8 +223,7 @@ class MassEditForm(BrowserView):
         """
         widget = self.replacement_widget
         replacement = widget.extract()
-        if replacement is not NO_VALUE and not self.is_dg():
-            # this doesn't work on dgf?
+        if replacement is not NO_VALUE:
             try:
                 replacement = IDataConverter(widget).toFieldValue(replacement)
             except WrongType:
@@ -245,7 +244,7 @@ class MassEditForm(BrowserView):
                 if fkey:
                     for item_value in field_value:
                         if item_value[fkey] == match:
-                            item_value[fkey] = replacement[0]
+                            item_value[fkey] = replacement
                     self.set_value(obj, schema, field, field_value)
                 else:
                     if replacement in field_value:
@@ -271,7 +270,11 @@ class MassEditForm(BrowserView):
 
             if isinstance(field_value, tuple) or isinstance(field_value, list):
                 if fkey:
-                    field_value = [item_value for item_value in field_value if item_value[fkey] != match]
+                    for item_value in field_value:
+                        if item_value[fkey] == match:
+                            item_value[fkey] = None
+                    # if this was the only value in the row, delete the row
+                    field_value = [item_value for item_value in field_value if [i for i in item_value.values() if i]]
                 else:
                     field_value = [item_value for item_value in field_value if item_value != match]
                 self.set_value(obj, schema, field, field_value)

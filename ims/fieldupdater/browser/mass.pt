@@ -83,7 +83,7 @@
               tal:attributes="action string:${context/absolute_url}/mass-edit">
 
             <input type="hidden" name="schema" tal:attributes="value schema"/>
-            <fieldset>
+            <fieldset id="fieldset-schema">
                 <legend>
                     Choose Field
                 </legend>
@@ -122,7 +122,7 @@
 
             <input type="hidden" name="schema" tal:attributes="value schema"/>
             <input type="hidden" name="field" tal:attributes="value field"/>
-            <fieldset>
+            <fieldset id="fieldset-field">
                 <legend>
                     Choose DataGrid Key
                 </legend>
@@ -166,7 +166,7 @@
             <input type="hidden" name="schema" tal:attributes="value schema"/>
             <input type="hidden" name="field" tal:attributes="value field"/>
             <input type="hidden" name="fkey" tal:attributes="value fkey"/>
-            <fieldset>
+            <fieldset id="fieldset-fkey">
                 <legend>
                     Choose Current Value
                 </legend>
@@ -211,10 +211,15 @@
             <input type="hidden" name="fkey" tal:attributes="value fkey"/>
             <input type="hidden" name="match" tal:attributes="value match"/>
 
-            <fieldset>
+            <fieldset id="fieldset-match">
                 <legend>
                     Current Matches
                 </legend>
+
+                <dl class="portalMessage warning">
+                    <dt>Warning</dt>
+                    <dd>Proceed with caution! All content listed here will be affected by modification or deletion.</dd>
+                </dl>
 
                 <ul>
                     <tal:result repeat="result results">
@@ -245,15 +250,15 @@
                            name="form.button.Merge"
                            title="Replace all values"
                            i18n:attributes="value; title"
-                           value="Replace">
+                           value="Replace with this value">
 
                     <input class="destructive"
                            id="input_delete_keyword"
                            type="submit"
                            name="form.button.Delete"
                            i18n:attributes="value; title"
-                           title="Remove all selected keywords"
-                           value="Delete"/>
+                           title="Remove values"
+                           value="Remove this value"/>
                 </div>
             </fieldset>
         </form>
