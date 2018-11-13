@@ -78,7 +78,6 @@ class MassEditForm(BrowserView):
         else:
             return u'unknown (cannot get a subset for behavior interfaces)'
 
-
     def get_fields(self):
         """
         Get all fields for a schema
@@ -252,6 +251,8 @@ class MassEditForm(BrowserView):
                     else:
                         field_value = [item_value == match and replacement or item_value for item_value in field_value]
                     self.set_value(obj, schema, field, field_value)
+        plone.api.portal.show_message(message=_(u'Replaced term in {} records'.format(len(self.results()))),
+                                      request=self.request, type='info')
 
     def delete_term(self, schema, field, fkey, match):
         """
@@ -280,6 +281,8 @@ class MassEditForm(BrowserView):
                 self.set_value(obj, schema, field, field_value)
             else:
                 self.set_value(obj, schema, field, None)
+        plone.api.portal.show_message(message=_(u'Removed term in {} records'.format(len(self.results()))),
+                                      request=self.request, type='info')
 
     def set_value(self, obj, dottedname, field, field_value, attempts=0):
         """
@@ -315,7 +318,6 @@ class MassEditForm(BrowserView):
             notify(ObjectModifiedEvent(obj))
             notify(EditFinishedEvent(obj))
             obj.reindexObject()
-            plone.api.portal.show_message(message='Successfully updated value', request=self.request)
 
     @property
     def replacement_widget(self):
