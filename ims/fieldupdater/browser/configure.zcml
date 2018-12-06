@@ -7,4 +7,10 @@
             for="*"
             class=".mass.MassEditForm"
             permission="cmf.ManagePortal"/>
+    <browser:page
+            name="schema-finder"
+            for="*"
+            template="schema.pt"
+            class=".mass.SchemaFinderForm"
+            permission="cmf.ManagePortal"/>
 </configure>

@@ -1,0 +1,73 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US"
+      lang="en-US"
+         metal:use-macro="context/prefs_main_template/macros/master"
+         i18n:domain="ims.fieldupdater">
+
+<tal:block metal:fill-slot="top_slot">
+    <tal:block tal:define="dummy python:request.set('disable_border',1)"/>
+</tal:block>
+
+<body>
+<div metal:fill-slot="prefs_configlet_main"
+         tal:define="errors python:request.get('errors', {});
+        content_type python:request.get('content_type', '');">
+
+    <h1 i18n:translate="heading_schema_field_manager">Schema Finder</h1>
+
+    <a href=""
+       class="link-parent"
+             tal:attributes="href string: $portal_url/plone_control_panel"
+             i18n:domain="plone"
+             i18n:translate="label_up_to_plone_setup">
+        Up to Plone Setup
+    </a>
+
+    <tal:content_types tal:define="types view/get_types;">
+        <form action="schema-finder" method="get"
+                 tal:attributes="action string:${context/absolute_url}/schema-finder">
+            <fieldset>
+                <legend>
+                    Choose a Content Type
+                </legend>
+
+                <div class="field">
+                    <label for="schemafield" i18n:translate="label_schema_field">
+                        Content Type
+                    </label>
+
+                    <select name="content_type" id="content_type"
+                            onchange="javascript:this.form.submit()">
+                        <option tal:repeat="type types"
+                                 tal:attributes="value type;
+                                        selected python:type==content_type"
+                                 i18n:translate=""
+                                 i18n:domain="plone"
+                                 tal:content="type"/>
+                    </select>
+                </div>
+            </fieldset>
+        </form>
+    </tal:content_types>
+
+    <tal:schemas tal:condition="content_type" >
+        <fieldset id="fieldset-schema">
+            <legend>
+                Choose Schema
+            </legend>
+            <p>
+                In most cases you will want the base schema which is listed first. Following that are the behaviors
+                available for this content type.
+            </p>
+            <ul>
+                <tal:schema repeat="schema view/schemas">
+                    <li>
+                        <a tal:attributes="href string:${context/absolute_url}/mass-edit?schema=${schema/id}"
+                                 tal:content="schema/title"/>
+                    </li>
+                </tal:schema>
+            </ul>
+        </fieldset>
+    </tal:schemas>
+</div>
+</body>
+</html>

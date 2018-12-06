@@ -43,6 +43,10 @@
                 <legend>
                     Choose Schema
                 </legend>
+                <p>
+                    If you are unsure of the schema you are looking for but you know the content type, try the
+                    <a tal:attributes="href string:${context/absolute_url}/schema-finder">schema finder</a>.
+                </p>
 
                 <div class="field">
                     <label for="schemafield" i18n:translate="label_schema_field">

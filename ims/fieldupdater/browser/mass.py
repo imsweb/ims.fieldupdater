@@ -1,6 +1,6 @@
 import datetime
 
-import plone.api
+import plone.api as api
 from DateTime import DateTime
 from Products.CMFPlone.utils import safe_unicode as su
 from Products.Five import BrowserView
@@ -36,15 +36,15 @@ class MassEditForm(BrowserView):
                 try:
                     self.replace_term(schema, field, fkey, match)
                 except Exception, e:
-                    plone.api.portal.show_message(message='Failed to validate: %s' % e.__repr__(), request=self.request,
+                    api.portal.show_message(message='Failed to validate: %s' % e.__repr__(), request=self.request,
                                                   type='error')
             else:
-                plone.api.portal.show_message(message=u'Please enter a replacement value.', request=self.request)
+                api.portal.show_message(message=u'Please enter a replacement value.', request=self.request)
         elif self.request.form.get('form.button.Delete', ''):
             try:
                 self.delete_term(schema, field, fkey, match)
             except Exception, e:
-                plone.api.portal.show_message(message='Failed to validate: %s' % e.__repr__(), request=self.request,
+                api.portal.show_message(message='Failed to validate: %s' % e.__repr__(), request=self.request,
                                               type='error')
 
         return self.template()
@@ -56,7 +56,7 @@ class MassEditForm(BrowserView):
         :return: dotted name of interfaces
         """
         behaviors = tuple([behav[1].interface.__identifier__ for behav in getUtilitiesFor(IBehavior)])
-        catalog = plone.api.portal.get_tool('portal_catalog')
+        catalog = api.portal.get_tool('portal_catalog')
         interfaces = sorted(list(set(catalog.uniqueValuesFor('object_provides') + behaviors)),
                             key=lambda term: term.split('.')[-1])
         for interface in interfaces:
@@ -72,7 +72,7 @@ class MassEditForm(BrowserView):
         :param schema: dotted name interface
         :return: int
         """
-        catalog = plone.api.portal.get_tool('portal_catalog')
+        catalog = api.portal.get_tool('portal_catalog')
         if schema in catalog.uniqueValuesFor('object_provides'):
             return len(catalog(object_provides=schema))
         else:
@@ -144,7 +144,7 @@ class MassEditForm(BrowserView):
         elif not self.is_dg() and not (schema and field):
             return
         values = set()
-        catalog = plone.api.portal.get_tool('portal_catalog')
+        catalog = api.portal.get_tool('portal_catalog')
         if schema in catalog.uniqueValuesFor('object_provides'):
             query = catalog(object_provides=schema)
         else:
@@ -187,7 +187,7 @@ class MassEditForm(BrowserView):
         if not match:
             return
 
-        catalog = plone.api.portal.get_tool('portal_catalog')
+        catalog = api.portal.get_tool('portal_catalog')
         _results = []
         if schema in catalog.uniqueValuesFor('object_provides'):
             query = catalog(object_provides=schema)
@@ -229,7 +229,7 @@ class MassEditForm(BrowserView):
                 # for some reason some things that should come in as unicode are coming in as strings
                 replacement = IDataConverter(widget).toFieldValue(IDataConverter(widget).toWidgetValue(replacement))
         if not replacement or replacement is NO_VALUE:
-            plone.api.portal.show_message(message=_(u'No replacement value given'), request=self.request, type='error')
+            api.portal.show_message(message=_(u'No replacement value given'), request=self.request, type='error')
             return
 
         for brain in self.results():
@@ -251,7 +251,7 @@ class MassEditForm(BrowserView):
                     else:
                         field_value = [item_value == match and replacement or item_value for item_value in field_value]
                     self.set_value(obj, schema, field, field_value)
-        plone.api.portal.show_message(message=_(u'Replaced term in {} records'.format(len(self.results()))),
+        api.portal.show_message(message=_(u'Replaced term in {} records'.format(len(self.results()))),
                                       request=self.request, type='info')
 
     def delete_term(self, schema, field, fkey, match):
@@ -281,7 +281,7 @@ class MassEditForm(BrowserView):
                 self.set_value(obj, schema, field, field_value)
             else:
                 self.set_value(obj, schema, field, None)
-        plone.api.portal.show_message(message=_(u'Removed term in {} records'.format(len(self.results()))),
+        api.portal.show_message(message=_(u'Removed term in {} records'.format(len(self.results()))),
                                       request=self.request, type='info')
 
     def set_value(self, obj, dottedname, field, field_value, attempts=0):
@@ -311,7 +311,7 @@ class MassEditForm(BrowserView):
                     field_value = su(field_value)
                     return self.set_value(obj, dottedname, field, field_value, attempts)
             else:
-                plone.api.portal.show_message(message='Failed to validate: %s' % e.__repr__(), request=self.request,
+                api.portal.show_message(message='Failed to validate: %s' % e.__repr__(), request=self.request,
                                               type='error')
         else:
             setattr(obj, field, field_value)
@@ -342,3 +342,24 @@ class MassEditForm(BrowserView):
         widget.name = 'replacement'
         widget.update()
         return widget
+
+
+class SchemaFinderForm(BrowserView):
+    def get_types(self):
+        catalog = api.portal.get_tool('portal_catalog')
+        return sorted(catalog.uniqueValuesFor('portal_type'))
+
+    def schemas(self):
+        content_type = self.request['content_type']
+        mass = getMultiAdapter((self.context, self.request), name='mass-edit')
+        _schemas = mass.get_schemas()
+        type_info = api.portal.get_tool('portal_types').getTypeInfo(content_type)
+        yield {
+            'id': type_info.schema,
+            'title': type_info.schema.split('.')[-1]
+        }
+        for behav in type_info.behaviors:
+            yield {
+                'id': behav,
+                'title': behav.split('.')[-1]
+            }
