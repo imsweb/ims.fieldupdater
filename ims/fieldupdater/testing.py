@@ -1,13 +1,12 @@
-from plone.app.testing import PloneSandboxLayer, IntegrationTesting, FunctionalTesting, applyProfile
+import ims.fieldupdater
 from plone.app.contenttypes.testing import PLONE_APP_CONTENTTYPES_FIXTURE
+from plone.app.testing import PloneSandboxLayer, IntegrationTesting, FunctionalTesting, applyProfile
 
 has_dgf = True
 try:
     import collective.z3cform.datagridfield
 except ImportError:
     has_dgf = False
-
-import ims.fieldupdater
 
 
 class FieldUpdaterSiteLayer(PloneSandboxLayer):
