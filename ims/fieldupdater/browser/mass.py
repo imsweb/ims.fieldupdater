@@ -234,7 +234,8 @@ class MassEditForm(BrowserView):
             api.portal.show_message(message=_(u'No replacement value given'), request=self.request, type='error')
             return
 
-        for brain in self.results():
+        results = self.results()
+        for brain in results:
             obj = brain.getObject()
             field_value = getattr(obj, field, None)
 
@@ -253,7 +254,7 @@ class MassEditForm(BrowserView):
                     else:
                         field_value = [item_value == match and replacement or item_value for item_value in field_value]
                     self.set_value(obj, schema, field, field_value)
-        api.portal.show_message(message=_(u'Replaced term in {} records'.format(len(self.results()))),
+        api.portal.show_message(message=_(u'Replaced term in {} records'.format(len(results))),
                                 request=self.request, type='info')
 
     def delete_term(self, schema, field, fkey, match):
