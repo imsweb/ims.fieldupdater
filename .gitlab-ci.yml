@@ -26,4 +26,4 @@ plone-openshift:
   - echo "buildout successful"
   - echo "running test on version:"
   - python setup.py --version
-  - /$CI_PROJECT_PATH/bin/test -v -s ims.fieldupdater
+  - /builds/$CI_PROJECT_PATH/bin/test -v -s ims.fieldupdater
