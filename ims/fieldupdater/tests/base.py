@@ -1,11 +1,16 @@
 import unittest
 
 from ims.fieldupdater import testing
+from interfaces import IMassEditTest
 from plone.app.testing import setRoles, TEST_USER_ID, SITE_OWNER_NAME, SITE_OWNER_PASSWORD
 from plone.testing.z2 import Browser
 from zope.interface.declarations import directlyProvides
 
-from interfaces import IMassEditTest
+try:
+    from Products.CMFCore.indexing import processQueue
+except ImportError:
+    def processQueue():
+        pass
 
 
 class UnitTestCase(unittest.TestCase):
@@ -31,6 +36,7 @@ class IntegrationTestCase(unittest.TestCase):
         directlyProvides(self.page2, IMassEditTest)
         self.page1.reindexObject()
         self.page2.reindexObject()
+        processQueue()
 
 
 class FunctionalTestCase(IntegrationTestCase):

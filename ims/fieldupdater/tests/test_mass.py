@@ -1,5 +1,5 @@
 import base
-from zope.schema.interfaces import WrongType, WrongContainedType, RequiredMissing
+from zope.schema.interfaces import RequiredMissing
 
 from .interfaces import IMassEditTest
 
