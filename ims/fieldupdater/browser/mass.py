@@ -1,9 +1,7 @@
 import datetime
 
 import plone.api as api
-import six
 from DateTime import DateTime
-from Products.CMFPlone.utils import safe_unicode as su
 from Products.Five import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from collective.z3cform.datagridfield.row import DictRow
@@ -41,7 +39,7 @@ class MassEditForm(BrowserView):
                     api.portal.show_message(message='Failed to validate: %s' % e.__repr__(), request=self.request,
                                             type='error')
             else:
-                api.portal.show_message(message=u'Please enter a replacement value.', request=self.request)
+                api.portal.show_message(message='Please enter a replacement value.', request=self.request)
         elif self.request.form.get('form.button.Delete', ''):
             try:
                 self.delete_term(schema, field, fkey, match)
@@ -78,7 +76,7 @@ class MassEditForm(BrowserView):
         if schema in catalog.uniqueValuesFor('object_provides'):
             return len(catalog(object_provides=schema))
         else:
-            return u'unknown (cannot get a subset for behavior interfaces)'
+            return 'unknown (cannot get a subset for behavior interfaces)'
 
     def get_fields(self):
         """
@@ -156,15 +154,15 @@ class MassEditForm(BrowserView):
             field_value = getattr(obj, field, None)
             if not field_value:
                 continue
-            if field_value and isinstance(field_value, six.string_types):
+            if field_value and isinstance(field_value, str):
                 values.add(field_value)
             elif field_value and isinstance(field_value, tuple) or isinstance(field_value, list):
                 for item_value in field_value:
                     if fkey:
-                        if item_value[fkey] and isinstance(item_value[fkey], six.string_types):
+                        if item_value[fkey] and isinstance(item_value[fkey], str):
                             values.add(item_value[fkey])
                     else:
-                        if item_value and isinstance(item_value, six.string_types):
+                        if item_value and isinstance(item_value, str):
                             values.add(item_value)
             elif field_value and (isinstance(field_value, datetime.datetime) or isinstance(field_value, datetime.date)):
                 values.add(field_value)
@@ -198,7 +196,7 @@ class MassEditForm(BrowserView):
         for brain in query:
             obj = brain.getObject()
             field_value = getattr(obj, field, None)
-            if field_value == match and isinstance(field_value, six.string_types):
+            if field_value == match and isinstance(field_value, str):
                 _results.append(brain)
             elif (isinstance(field_value, tuple) or isinstance(field_value, list)) and match in field_value:
                 _results.append(brain)
@@ -231,7 +229,7 @@ class MassEditForm(BrowserView):
                 # for some reason some things that should come in as unicode are coming in as strings
                 replacement = IDataConverter(widget).toFieldValue(IDataConverter(widget).toWidgetValue(replacement))
         if not replacement or replacement is NO_VALUE:
-            api.portal.show_message(message=_(u'No replacement value given'), request=self.request, type='error')
+            api.portal.show_message(message=_('No replacement value given'), request=self.request, type='error')
             return
 
         results = self.results()
@@ -239,7 +237,7 @@ class MassEditForm(BrowserView):
             obj = brain.getObject()
             field_value = getattr(obj, field, None)
 
-            if isinstance(field_value, six.string_types) or \
+            if isinstance(field_value, str) or \
                     isinstance(field_value, datetime.date) or isinstance(field_value, datetime.datetime):
                 self.set_value(obj, schema, field, replacement)
             elif isinstance(field_value, tuple) or isinstance(field_value, list):
@@ -254,7 +252,7 @@ class MassEditForm(BrowserView):
                     else:
                         field_value = [item_value == match and replacement or item_value for item_value in field_value]
                     self.set_value(obj, schema, field, field_value)
-        api.portal.show_message(message=_(u'Replaced term in {} records'.format(len(results))),
+        api.portal.show_message(message=_('Replaced term in {} records'.format(len(results))),
                                 request=self.request, type='info')
 
     def delete_term(self, schema, field, fkey, match):
@@ -278,13 +276,14 @@ class MassEditForm(BrowserView):
                         if item_value[fkey] == match:
                             item_value[fkey] = None
                     # if this was the only value in the row, delete the row
-                    field_value = [item_value for item_value in field_value if [i for i in item_value.values() if i]]
+                    field_value = [item_value for item_value in field_value if
+                                   [i for i in list(item_value.values()) if i]]
                 else:
                     field_value = [item_value for item_value in field_value if item_value != match]
                 self.set_value(obj, schema, field, field_value)
             else:
                 self.set_value(obj, schema, field, None)
-        api.portal.show_message(message=_(u'Removed term in {} records'.format(len(self.results()))),
+        api.portal.show_message(message=_('Removed term in {} records'.format(len(self.results()))),
                                 request=self.request, type='info')
 
     def set_value(self, obj, dottedname, field, field_value, attempts=0):
@@ -307,11 +306,8 @@ class MassEditForm(BrowserView):
         except WrongType as e:
             if attempts < attempt_limit:
                 attempts += 1
-                if isinstance(field_value, unicode):
+                if isinstance(field_value, str):
                     field_value = str(field_value)
-                    return self.set_value(obj, dottedname, field, field_value, attempts)
-                elif isinstance(field_value, str):
-                    field_value = su(field_value)
                     return self.set_value(obj, dottedname, field, field_value, attempts)
             else:
                 api.portal.show_message(message='Failed to validate: %s' % e.__repr__(), request=self.request,
