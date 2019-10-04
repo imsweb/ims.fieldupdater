@@ -9,12 +9,19 @@ from plone.behavior.interfaces import IBehavior
 from plone.dexterity.events import EditFinishedEvent
 from plone.dexterity.utils import resolveDottedName
 from z3c.form.interfaces import IFieldWidget, NO_VALUE, IDataConverter
-from zope.component import getMultiAdapter, getUtilitiesFor
+from zope.component import getMultiAdapter, getUtilitiesFor, getUtility
 from zope.event import notify
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.schema.interfaces import WrongType
 
 from .. import _
+
+
+def get_behav(name):
+    behav = getUtility(IBehavior, name=name)
+    if name is None:
+        behav = resolveDottedName(behav)
+    return behav
 
 
 class MassEditForm(BrowserView):
@@ -60,7 +67,7 @@ class MassEditForm(BrowserView):
         interfaces = sorted(list(set(catalog.uniqueValuesFor('object_provides') + behaviors)),
                             key=lambda term: term.split('.')[-1])
         for interface in interfaces:
-            if resolveDottedName(interface).names():
+            if get_behav(interface).names():
                 yield {
                     'id': interface,
                     'title': interface.split('.')[-1],
@@ -331,7 +338,7 @@ class MassEditForm(BrowserView):
             field = self.get_dgschema()[fkey]
         else:
             schema = self.request.get('schema', None)
-            schema = resolveDottedName(schema)
+            schema = get_behav(schema)
             field = self.request.get('field', None)
             field = schema[field]
             if hasattr(field, 'value_type'):
