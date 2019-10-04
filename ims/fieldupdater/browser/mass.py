@@ -19,9 +19,10 @@ from .. import _
 
 def get_behav(name):
     behav = getUtility(IBehavior, name=name)
-    if name is None:
-        behav = resolveDottedName(behav)
-    return behav
+    if name is not None:
+        return behav.interface
+    else:
+        return resolveDottedName(behav)
 
 
 class MassEditForm(BrowserView):
