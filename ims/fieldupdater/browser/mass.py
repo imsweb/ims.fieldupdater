@@ -9,7 +9,7 @@ from plone.behavior.interfaces import IBehavior
 from plone.dexterity.events import EditFinishedEvent
 from plone.dexterity.utils import resolveDottedName
 from z3c.form.interfaces import IFieldWidget, NO_VALUE, IDataConverter
-from zope.component import getMultiAdapter, getUtilitiesFor, getUtility
+from zope.component import getMultiAdapter, getUtilitiesFor, queryUtility
 from zope.event import notify
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.schema.interfaces import WrongType
@@ -18,11 +18,11 @@ from .. import _
 
 
 def get_behav(name):
-    behav = getUtility(IBehavior, name=name)
-    if name is not None:
+    behav = queryUtility(IBehavior, name=name)
+    if behav is not None:
         return behav.interface
     else:
-        return resolveDottedName(behav)
+        return resolveDottedName(name)
 
 
 class MassEditForm(BrowserView):
@@ -94,7 +94,7 @@ class MassEditForm(BrowserView):
         schema = self.request.get('schema', None)
         if not schema:
             return
-        interface = resolveDottedName(schema)
+        interface = get_behav(schema)
         for name in interface.names():
             if interface[name] and hasattr(interface[name], 'title'):
                 yield {
@@ -111,7 +111,7 @@ class MassEditForm(BrowserView):
         field = self.request.get('field', None)
         if not field or not schema:
             return
-        interface = resolveDottedName(schema)
+        interface = get_behav(schema)
         return hasattr(interface[field], 'value_type') and isinstance(interface[field].value_type, DictRow)
 
     def get_dgschema(self):
@@ -121,7 +121,7 @@ class MassEditForm(BrowserView):
         field = self.request.get('field', None)
         if not field or not schema:
             return
-        interface = resolveDottedName(schema)
+        interface = get_behav(schema)
         return interface[field].value_type.schema
 
     def get_dgkeys(self):
@@ -307,7 +307,7 @@ class MassEditForm(BrowserView):
         """
         attempt_limit = 1  # some of the more common validation problems are unicode where it expects ascii
         # or vice versa. Try once
-        schema = resolveDottedName(dottedname)
+        schema = get_behav(dottedname)
         bound = schema[field].bind(obj)
         try:
             bound.validate(field_value)
