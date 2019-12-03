@@ -15,15 +15,15 @@ plone-openshift:
   - echo $CI_PROJECT_NAMESPACE
   - echo $CI_REGISTRY
   - echo $CI_PROJECT_PATH
-  - echo "Successfully cleared the virtual env"
-  - echo "Activating Source installing setuptools and buildout"
-  - source ./bin/activate
-  - pip install setuptools==39.1.0
-  - pip install zc.buildout==2.11.4
-  - echo "Install Successful"
-  - echo "Running buildout"
-  - buildout -c gitlab-ci.cfg
-  - echo "buildout successful"
-  - echo "running test on version:"
-  - python setup.py --version
-  - /builds/$CI_PROJECT_PATH/bin/test -v -s ims.fieldupdater
+#  - echo "Successfully cleared the virtual env"
+#  - echo "Activating Source installing setuptools and buildout"
+#  - source ./bin/activate
+#  - pip install setuptools==39.1.0
+#  - pip install zc.buildout==2.11.4
+#  - echo "Install Successful"
+#  - echo "Running buildout"
+#  - buildout -c gitlab-ci.cfg
+#  - echo "buildout successful"
+#  - echo "running test on version:"
+#  - python setup.py --version
+#  - /builds/$CI_PROJECT_PATH/bin/test -v -s ims.fieldupdater
