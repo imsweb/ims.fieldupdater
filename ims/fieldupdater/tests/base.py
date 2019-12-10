@@ -2,7 +2,7 @@ import unittest
 
 import transaction
 from plone.app.testing import setRoles, TEST_USER_ID, SITE_OWNER_NAME, SITE_OWNER_PASSWORD
-from plone.testing.z2 import Browser
+from plone.testing.zope import Browser
 from zope.interface.declarations import directlyProvides
 
 from .interfaces import IMassEditTest
