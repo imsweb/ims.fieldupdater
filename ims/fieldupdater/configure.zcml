@@ -9,7 +9,13 @@
             name="default"
             title="ims.fieldupdater"
             directory="profiles/default"
-            description="Extension profile for ims.fieldupdater."
+            description="Adds control panel configlet for this tool"
+            provides="Products.GenericSetup.interfaces.EXTENSION"/>
+
+    <genericsetup:registerProfile
+            name="uninstall"
+            title="ims.fieldupdater [uninstall]"
+            directory="profiles/uninstall"
             provides="Products.GenericSetup.interfaces.EXTENSION"/>
 
 </configure>
