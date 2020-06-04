@@ -4,7 +4,6 @@ import plone.api as api
 from DateTime import DateTime
 from Products.Five import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
-from collective.z3cform.datagridfield.row import DictRow
 from plone.behavior.interfaces import IBehavior
 from plone.dexterity.events import EditFinishedEvent
 from plone.dexterity.utils import resolveDottedName
@@ -13,6 +12,10 @@ from zope.component import getMultiAdapter, getUtilitiesFor, queryUtility
 from zope.event import notify
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.schema.interfaces import WrongType
+try:
+    from collective.z3cform.datagridfield.row import DictRow
+except ModuleNotFoundError:
+    DictRow = None
 
 from .. import _
 
@@ -107,6 +110,8 @@ class MassEditForm(BrowserView):
         DataGridField (collective.z3cform.datagridfield) support. Lists with dicts
         :return: bool
         """
+        if not DictRow:
+            return False
         schema = self.request.get('schema', None)
         field = self.request.get('field', None)
         if not field or not schema:
