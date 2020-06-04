@@ -17,13 +17,13 @@ long_description = (
 
 setup(name='ims.fieldupdater',
       version=version,
-      long_description=long_description,
       description="Update all objects in Plone based on a schema/field strategy",
+      long_description=long_description,
+      long_description_content_type='text/markdown',
       classifiers=[
           "Framework :: Plone :: 5.0",
           "Framework :: Plone :: 5.1",
           "Programming Language :: Python",
-          "Programming Language :: Python :: 2.7",
           "Programming Language :: Python :: 3"
       ],
       author='Eric Wohnlich',
