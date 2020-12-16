@@ -4,7 +4,7 @@ stages:
 plone-openshift:
   tags:
   - openshift
-  image: docker.git.imsweb.com/plone/buildout-configs/plone-testrunner:latest
+  image: cr.git.imsweb.com/plone/buildout-configs/plone-testrunner:latest
   stage: test-openshift
   before_script:
   - echo $CI_PROJECT_NAMESPACE
