@@ -38,6 +38,7 @@ setup(name='ims.fieldupdater',
       install_requires=[
           'setuptools',
           'plone.api',
+          'collective.z3cform.datagridfield'
       ],
       entry_points="""
       # -*- Entry points: -*-
