@@ -3,6 +3,7 @@
         xmlns:i18n="http://xml.zope.org/namespaces/i18n" i18n:domain="plone">
     <configlet title="Mass Edits" action_id="FieldUpdater"
                appId="ims.fieldupdater" category="Products" condition_expr=""
+               icon_expr="string:pencil-square"
                url_expr="string:${portal_url}/@@mass-edit"
                visible="True" i18n:attributes="title">
         <permission>Manage portal</permission>

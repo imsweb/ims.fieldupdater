@@ -1,7 +1,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US"
       lang="en-US"
-      metal:use-macro="context/prefs_main_template/macros/master"
-      i18n:domain="ims.fieldupdater">
+         metal:use-macro="context/prefs_main_template/macros/master"
+         i18n:domain="ims.fieldupdater">
 
 <tal:block metal:fill-slot="top_slot">
     <tal:block tal:define="dummy python:request.set('disable_border',1)"/>
@@ -20,32 +20,22 @@
 
     <h1 i18n:translate="heading_schema_field_manager">Schema Field Manager</h1>
 
-    <a href=""
-       class="link-parent"
-       tal:attributes="href string: $portal_url/plone_control_panel"
-       i18n:domain="plone"
-       i18n:translate="label_up_to_plone_setup">
-        Up to Plone Setup
-    </a>
-
-    <div class="documentDescription"
-         i18n:translate="description_keyword_manager">
+    <div class="documentDescription">
         The Schema field manager allows you to delete and merge fields in your portal. As a reminder, you can
-        use the <a target="_blank" tal:attributes="href string:${context/absolute_url}/manage_UndoForm">undo form</a> to
+        use the <a target="_blank" href="${context/absolute_url}/manage_UndoForm">undo form</a> to
         rollback
         changes.
     </div>
 
-    <tal:schema_fields tal:define="schemas view/get_schemas;">
-        <form action="mass-edit" method="get"
-              tal:attributes="action string:${context/absolute_url}/mass-edit">
+    <tal:schema_fields tal:define="schemas view/get_schemas">
+        <form action="${context/absolute_url}/mass-edit" method="get">
             <fieldset>
                 <legend>
                     Choose Schema
                 </legend>
                 <p>
                     If you are unsure of the schema you are looking for but you know the content type, try the
-                    <a tal:attributes="href string:${context/absolute_url}/schema-finder">schema finder</a>.
+                    <a href="${context/absolute_url}/schema-finder">schema finder</a>.
                 </p>
 
                 <div class="field">
@@ -56,25 +46,25 @@
                     <select id="schemafield" name="schema"
                             onchange="javascript:this.form.submit()">
                         <option tal:repeat="fld schemas"
-                                tal:attributes="value fld/id;
-                                            selected python:fld['id']==schema;"
-                                i18n:translate=""
-                                i18n:domain="plone"
-                                tal:content="fld/title"/>
+                                value="${fld/id}"
+                                selected="${python:fld['id']==schema}"
+                                 i18n:translate=""
+                                 i18n:domain="plone">
+                                ${fld/title}
+                        </option>
                     </select>
 
                     <span tal:condition="schema"
-                          tal:define="schema_matches python:view.schema_matches(schema)"
-                          tal:content="string:Objects providing this interface: ${schema_matches}">
-                        subset
+                             tal:define="schema_matches python:view.schema_matches(schema)">
+                        Objects providing this interface: ${schema_matches}
                     </span>
                 </div>
 
                 <div class="formControls">
-                    <input class="standalone"
+                    <input class="btn btn-primary"
                            type="submit"
                            value="Select Schema"
-                           i18n:attributes="value"/>
+                             i18n:attributes="value"/>
                 </div>
 
             </fieldset>
@@ -82,11 +72,10 @@
     </tal:schema_fields>
 
     <tal:schema_selected condition="schema">
-        <form action="mass-edit" method="get"
-              tal:define="fields view/get_fields"
-              tal:attributes="action string:${context/absolute_url}/mass-edit">
+        <form action="${context/absolute_url}/mass-edit" method="get"
+                 tal:define="fields view/get_fields">
 
-            <input type="hidden" name="schema" tal:attributes="value schema"/>
+            <input type="hidden" name="schema" value="${schema}"/>
             <fieldset id="fieldset-schema">
                 <legend>
                     Choose Field
@@ -100,19 +89,20 @@
                     <select id="fieldfield" name="field"
                             onchange="javascript:this.form.submit()">
                         <option tal:repeat="fld fields"
-                                tal:attributes="value fld/id;
-                                            selected python:fld['id']==field;"
-                                i18n:translate=""
-                                i18n:domain="plone"
-                                tal:content="fld/title"/>
+                                value="${fld/id}"
+                                selected="${python:fld['id']==field}"
+                                 i18n:translate=""
+                                 i18n:domain="plone">
+                            ${fld/title}
+                        </option>
                     </select>
                 </div>
 
                 <div class="formControls">
-                    <input class="standalone"
+                    <input class="btn btn-primary"
                            type="submit"
                            value="Select Field"
-                           i18n:attributes="value"/>
+                             i18n:attributes="value"/>
                 </div>
 
             </fieldset>
@@ -120,12 +110,11 @@
     </tal:schema_selected>
 
     <tal:schema_data_grid condition="view/is_dg">
-        <form action="mass-edit" method="get"
-              tal:define="dgkeys view/get_dgkeys"
-              tal:attributes="action string:${context/absolute_url}/mass-edit">
+        <form action="${context/absolute_url}/mass-edit" method="get"
+                 tal:define="dgkeys view/get_dgkeys">
 
-            <input type="hidden" name="schema" tal:attributes="value schema"/>
-            <input type="hidden" name="field" tal:attributes="value field"/>
+            <input type="hidden" name="schema" value="${schema}"/>
+            <input type="hidden" name="field" value="${field}"/>
             <fieldset id="fieldset-field">
                 <legend>
                     Choose DataGrid Key
@@ -139,16 +128,17 @@
                     <select id="dgkeyfield" name="fkey"
                             onchange="javascript:this.form.submit()">
                         <option tal:repeat="dgkey dgkeys"
-                                tal:attributes="value dgkey/id;
-                                            selected python:dgkey['id']==fkey;"
-                                i18n:translate=""
-                                i18n:domain="plone"
-                                tal:content="dgkey/title"/>
+                                value="${dgkey/id}"
+                                selected="${python:dgkey['id']==fkey}"
+                                 i18n:translate=""
+                                 i18n:domain="plone">
+                            ${dgkey/title}
+                        </option>
                     </select>
                 </div>
 
                 <div class="formControls">
-                    <input class="standalone"
+                    <input class="btn btn-primary"
                            type="submit"
                            value="Select DataGrid Key"
                            i18n:attributes="value"/>
@@ -159,17 +149,17 @@
     </tal:schema_data_grid>
 
     <tal:unsupported condition="view/unsupported">
-        Unsupported value type for this field: <span tal:content="view/unsupported"/>. Unfortunately this data
+        Unsupported value type for this field: ${view/unsupported}. Unfortunately this data
         type is not convertable through this form.
     </tal:unsupported>
 
     <tal:values condition="values">
-        <form action="mass-edit" method="get"
-              tal:attributes="action string:${context/absolute_url}/mass-edit">
+        <form action="${context/absolute_url}/mass-edit" method="get"
+                 tal:attributes="action string:">
 
-            <input type="hidden" name="schema" tal:attributes="value schema"/>
-            <input type="hidden" name="field" tal:attributes="value field"/>
-            <input type="hidden" name="fkey" tal:attributes="value fkey"/>
+            <input type="hidden" name="schema" value="${schema}"/>
+            <input type="hidden" name="field" value="${field}"/>
+            <input type="hidden" name="fkey" value="${fkey}"/>
             <fieldset id="fieldset-fkey">
                 <legend>
                     Choose Current Value
@@ -183,20 +173,21 @@
                     <select id="valuefield" name="match"
                             onchange="javascript:this.form.submit()">
                         <option tal:repeat="value values"
-                                tal:attributes="value value;
-                                            selected python:value==match;"
-                                i18n:translate=""
-                                i18n:domain="plone"
-                                tal:content="value"/>
+                                value="${value}"
+                                selected="${python:value==match}"
+                                 i18n:translate=""
+                                 i18n:domain="plone">
+                            ${value}
+                        </option>
                     </select>
                 </div>
 
                 <div class="formControls">
-                    <input class="standalone"
+                    <input class="btn btn-primary"
                            type="submit"
                            name="form.button.Merge"
                            title="Select value"
-                           i18n:attributes="value; title"
+                             i18n:attributes="value; title"
                            value="Select value">
                 </div>
             </fieldset>
@@ -209,11 +200,11 @@
 
     <tal:replace_or_delete tal:condition="results">
         <form action="mass-edit" method="post"
-              tal:attributes="action string:${context/absolute_url}/mass-edit">
-            <input type="hidden" name="schema" tal:attributes="value schema"/>
-            <input type="hidden" name="field" tal:attributes="value field"/>
-            <input type="hidden" name="fkey" tal:attributes="value fkey"/>
-            <input type="hidden" name="match" tal:attributes="value match"/>
+                 tal:attributes="action string:${context/absolute_url}/mass-edit">
+            <input type="hidden" name="schema" value="${schema}"/>
+            <input type="hidden" name="field" value="${field}"/>
+            <input type="hidden" name="fkey" value="${fkey}"/>
+            <input type="hidden" name="match" value="${match}"/>
 
             <fieldset id="fieldset-match">
                 <legend>
@@ -228,19 +219,19 @@
                 <ul>
                     <tal:result repeat="result results">
                         <li>
-                            <a tal:attributes="href result/getURL"
-                               tal:content="result/Title"
-                               target="_blank"/>
+                            <a href="${result/getURL}"
+                                    target="_blank">
+                                ${result/Title}
+                            </a>
                         </li>
                     </tal:result>
                 </ul>
 
                 <div class="field">
                     <div class="error"
-                         tal:define="err errors/changeto|nothing"
-                         tal:condition="err"
-                         tal:content="err" i18n:translate="">
-                        Error message goes here
+                             tal:define="err errors/changeto|nothing"
+                             tal:condition="err" i18n:translate="">
+                        ${err}
                     </div>
                     <label for="replacement" i18n:translate="">Value to apply</label>
                     <!--<input id="replacement" type="text" name="replacement"/>-->
@@ -249,18 +240,18 @@
                 </div>
 
                 <div class="formControls">
-                    <input class="destructive"
+                    <input class="btn btn-warning"
                            type="submit"
                            name="form.button.Merge"
                            title="Replace all values"
-                           i18n:attributes="value; title"
+                             i18n:attributes="value; title"
                            value="Replace with this value">
 
-                    <input class="destructive"
+                    <input class="btn btn-warning"
                            id="input_delete_keyword"
                            type="submit"
                            name="form.button.Delete"
-                           i18n:attributes="value; title"
+                             i18n:attributes="value; title"
                            title="Remove values"
                            value="Remove this value"/>
                 </div>

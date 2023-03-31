@@ -14,17 +14,8 @@
 
     <h1 i18n:translate="heading_schema_field_manager">Schema Finder</h1>
 
-    <a href=""
-       class="link-parent"
-             tal:attributes="href string: $portal_url/plone_control_panel"
-             i18n:domain="plone"
-             i18n:translate="label_up_to_plone_setup">
-        Up to Plone Setup
-    </a>
-
     <tal:content_types tal:define="types view/get_types;">
-        <form action="schema-finder" method="get"
-                 tal:attributes="action string:${context/absolute_url}/schema-finder">
+        <form action="${context/absolute_url}/schema-finder" method="get">
             <fieldset>
                 <legend>
                     Choose a Content Type
@@ -38,11 +29,12 @@
                     <select name="content_type" id="content_type"
                             onchange="javascript:this.form.submit()">
                         <option tal:repeat="type types"
-                                 tal:attributes="value type;
-                                        selected python:type==content_type"
+                                value="${type}"
+                                selected="${python:type==content_type}"
                                  i18n:translate=""
-                                 i18n:domain="plone"
-                                 tal:content="type"/>
+                                 i18n:domain="plone">
+                            ${type}
+                        </option>
                     </select>
                 </div>
             </fieldset>
@@ -61,8 +53,9 @@
             <ul>
                 <tal:schema repeat="schema view/schemas">
                     <li>
-                        <a tal:attributes="href string:${context/absolute_url}/mass-edit?schema=${schema/id}"
-                                 tal:content="schema/title"/>
+                        <a href="${context/absolute_url}/mass-edit?schema=${schema/id}">
+                            ${schema/title}
+                        </a>
                     </li>
                 </tal:schema>
             </ul>
