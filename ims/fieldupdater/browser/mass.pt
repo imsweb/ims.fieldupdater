@@ -1,6 +1,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US"
       lang="en-US"
          metal:use-macro="context/prefs_main_template/macros/master"
+<tal:icon tal:replace="structure python:icons.tag('plone-statusmessage-info', tag_alt='status', tag_class='statusmessage-icon mb-1 me-2')" />
          i18n:domain="ims.fieldupdater">
 
 <tal:block metal:fill-slot="top_slot">
@@ -9,14 +10,14 @@
 
 <body>
 <div metal:fill-slot="prefs_configlet_main"
-     tal:define="errors python:request.get('errors', {});
-                 search python:request.get('search', '');
-                 schema python:request.get('schema', '');
-                 field python:request.get('field', '');
-                 fkey python:request.get('fkey', '');
-                 match python:request.get('match', '');
-                 values view/get_values;
-                 results view/results">
+         tal:define="errors python:request.get('errors', {});
+        search python:request.get('search', '');
+        schema python:request.get('schema', '');
+        field python:request.get('field', '');
+        fkey python:request.get('fkey', '');
+        match python:request.get('match', '');
+        values view/get_values;
+        results view/results">
 
     <h1 i18n:translate="heading_schema_field_manager">Schema Field Manager</h1>
 
@@ -93,7 +94,7 @@
                                 selected="${python:fld['id']==field}"
                                  i18n:translate=""
                                  i18n:domain="plone">
-                            ${fld/title}
+                                ${fld/title}
                         </option>
                     </select>
                 </div>
@@ -132,7 +133,7 @@
                                 selected="${python:dgkey['id']==fkey}"
                                  i18n:translate=""
                                  i18n:domain="plone">
-                            ${dgkey/title}
+                                ${dgkey/title}
                         </option>
                     </select>
                 </div>
@@ -141,7 +142,7 @@
                     <input class="btn btn-primary"
                            type="submit"
                            value="Select DataGrid Key"
-                           i18n:attributes="value"/>
+                             i18n:attributes="value"/>
                 </div>
 
             </fieldset>
@@ -177,7 +178,7 @@
                                 selected="${python:value==match}"
                                  i18n:translate=""
                                  i18n:domain="plone">
-                            ${value}
+                                ${value}
                         </option>
                     </select>
                 </div>
@@ -211,17 +212,18 @@
                     Current Matches
                 </legend>
 
-                <dl class="portalMessage warning">
-                    <dt>Warning</dt>
-                    <dd>Proceed with caution! All content listed here will be affected by modification or deletion.</dd>
-                </dl>
+                <div class="portalMessage statusmessage statusmessage-warn alert alert-warning">
+                    <tal:icon tal:replace="structure python:icons.tag('plone-statusmessage-info', tag_alt='status', tag_class='statusmessage-icon mb-1 me-2')" />
+                    <div>Warning</div>
+                    Proceed with caution! All content listed here will be affected by modification or deletion.
+                </div>
 
                 <ul>
                     <tal:result repeat="result results">
                         <li>
                             <a href="${result/getURL}"
-                                    target="_blank">
-                                ${result/Title}
+                               target="_blank">
+                                    ${result/Title}
                             </a>
                         </li>
                     </tal:result>
@@ -231,7 +233,7 @@
                     <div class="error"
                              tal:define="err errors/changeto|nothing"
                              tal:condition="err" i18n:translate="">
-                        ${err}
+                            ${err}
                     </div>
                     <label for="replacement" i18n:translate="">Value to apply</label>
                     <!--<input id="replacement" type="text" name="replacement"/>-->
