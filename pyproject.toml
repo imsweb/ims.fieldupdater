@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ims.fieldupdater"
+version = "3.0.0"
+requires-python = ">=3.8"
+description = "Update all objects in Plone based on a schema/field strategy"
+classifiers = [
+    "Framework :: Plone :: 6.0",
+    "Programming Language :: Python",
+]
+authors = [
+    { name = "Eric Wohnlich", email = "wohnlice@imsweb.com" }
+]
+license = { text = "GPL" }
+
+dependencies = [
+    "plone>=6.0.4"
+]
+
+[project.urls]
+homepage = "https://git.imsweb.com/plone/ims.fieldupdater"
+documentation = "https://git.imsweb.com/plone/ims.fieldupdater"
+repository = "https://git.imsweb.com/plone/ims.fieldupdater"
+
+[project.optional-dependencies]
+test = ["plone.app.testing", "plone.mocktestcase", "formencode"]
+
+[project.entry-points."plone.autoinclude.plugin"]
+target = "plone"
+
+[tool.bandit]
+exclude_dirs = ["*/tests/*"]
+skips = ["B313", "B314", "B315", "B316", "B317", "B318", "B319", "B320", "B410", "B404", "B603"]
+
+[tool.coverage.report]
+include = ["ims/fieldupdater/*"]
+omit = ["venv", "*/test*", "*upgrades.py"]
+
+[tool.setuptools.packages.find]
+include = ["ims"]
+
+[tool.flake8]
+max-line-length = 120

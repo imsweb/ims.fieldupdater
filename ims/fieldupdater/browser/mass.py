@@ -358,8 +358,6 @@ class SchemaFinderForm(BrowserView):
 
     def schemas(self):
         content_type = self.request['content_type']
-        mass = getMultiAdapter((self.context, self.request), name='mass-edit')
-        mass.get_schemas()
         type_info = api.portal.get_tool('portal_types').getTypeInfo(content_type)
         yield {
             'id': type_info.schema,

@@ -134,9 +134,10 @@ class TestMassIntegration(base.IntegrationTestCase):
 class TestMassFunctional(base.FunctionalTestCase):
     def test_mass_edit(self):
         self.page1.list_choice_field = 'einstein'
-        url = self.portal.absolute_url() + '/@@mass-edit?schema='
-        url += IMassEditTest.__identifier__ + '&field=list_choice_field&match='
-        self.browser.open(url)
+        self.browser.open(self.portal.absolute_url() + '/@@mass-edit?schema=' +
+                          IMassEditTest.__identifier__ + '&field=list_choice_field&match=')
+        # ctrl = self.browser.getControl
+        # ctrl(name='form.buttons.search').click()
 
 
 def test_suite():

@@ -1,25 +1,2 @@
-stages:
-- test-openshift
-
-plone-openshift:
-  tags:
-  - openshift
-  image: cr.git.imsweb.com/plone/buildout-configs/plone-testrunner:latest
-  stage: test-openshift
-  before_script:
-  - echo $CI_PROJECT_NAMESPACE
-  - echo $CI_REGISTRY
-  - echo $CI_PROJECT_PATH
-  script:
-  - echo $CI_PROJECT_NAMESPACE
-  - echo $CI_REGISTRY
-  - echo $CI_PROJECT_PATH
-  - echo "Activating Source installing setuptools and buildout"
-  - source /plone5/instance/bin/activate
-  - echo "Install Successful"
-  - echo "Running buildout"
-  - buildout -c gitlab-ci.cfg
-  - echo "buildout successful"
-  - echo "running test on version:"
-  - python setup.py --version
-  - ./bin/test -v -s ims.fieldupdater
+include:
+  - remote: 'https://git.imsweb.com/plone/imsplone/-/raw/plone6/buildout/gitlabci-yml/general.yml'
