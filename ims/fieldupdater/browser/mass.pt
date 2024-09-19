@@ -1,6 +1,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US"
       lang="en-US"
-         metal:use-macro="context/prefs_main_template/macros/master"
+         metal:use-macro="context/prefs_main_template/macros/master">
 <tal:icon tal:replace="structure python:icons.tag('plone-statusmessage-info', tag_alt='status', tag_class='statusmessage-icon mb-1 me-2')" />
          i18n:domain="ims.fieldupdater">
 
