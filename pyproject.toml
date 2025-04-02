@@ -58,7 +58,7 @@ cov = [
 [tool.towncrier]
 directory = "changes"
 filename = "CHANGES.md"
-package = "ims.contacts"
+package = "ims.fieldupdater"
 issue_format = "[{issue}]: https://squishlist.com/ims/plone/{issue}"
 
 [tool.towncrier.fragment.feature]
