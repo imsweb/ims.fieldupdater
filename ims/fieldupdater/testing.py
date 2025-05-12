@@ -1,38 +1,53 @@
+from plone.app.contenttypes.testing import PLONE_APP_CONTENTTYPES_FIXTURE
+from plone.app.robotframework.testing import REMOTE_LIBRARY_BUNDLE_FIXTURE
+from plone.app.testing import FunctionalTesting
+from plone.app.testing import IntegrationTesting
+from plone.app.testing import PloneSandboxLayer
+from plone.app.testing import applyProfile
+from plone.protect import auto
+from plone.testing.zope import WSGI_SERVER_FIXTURE
+
 import ims.fieldupdater
-from plone.app.testing import PloneSandboxLayer, IntegrationTesting, FunctionalTesting, applyProfile, PLONE_FIXTURE
 
-has_dgf = True
-try:
-    import collective.z3cform.datagridfield
-except ImportError:
-    has_dgf = False
+ORIGINAL_CSRF_DISABLED = auto.CSRF_DISABLED
 
 
-class FieldUpdaterSiteLayer(PloneSandboxLayer):
-    defaultBases = (PLONE_FIXTURE,)
+class FieldUpdaterLayer(PloneSandboxLayer):
+    defaultBases = (PLONE_APP_CONTENTTYPES_FIXTURE,)
 
-    def setUpZope(self, app, configuration_context):
-        # Load any other ZCML that is required for your tests.
-        # The z3c.autoinclude feature is disabled in the Plone fixture base
-        # layer.
-        if has_dgf:
-            self.loadZCML(package=collective.z3cform.datagridfield)
+    def setUpZope(self, app, configurationContext):
+        auto.CSRF_DISABLED = True
         self.loadZCML(package=ims.fieldupdater)
 
+    def tearDownZope(self, app):
+        auto.CSRF_DISABLED = ORIGINAL_CSRF_DISABLED
+
     def setUpPloneSite(self, portal):
-        if has_dgf:
-            applyProfile(portal, 'collective.z3cform.datagridfield:default')
-        applyProfile(portal, 'ims.fieldupdater:default')
+        applyProfile(portal, "ims.fieldupdater:default")
 
 
-FIELD_UPDATER_SITE_FIXTURE = FieldUpdaterSiteLayer()
+FIXTURE = FieldUpdaterLayer()
 
-INTEGRATION = IntegrationTesting(
-    bases=(FIELD_UPDATER_SITE_FIXTURE,),
-    name="ims.fieldupdater:Integration"
+INTEGRATION_TESTING = IntegrationTesting(
+    bases=(FIXTURE,),
+    name="FieldUpdaterLayer:IntegrationTesting",
 )
 
-FUNCTIONAL = FunctionalTesting(
-    bases=(FIELD_UPDATER_SITE_FIXTURE,),
-    name="ims.fieldupdater:Functional"
+FUNCTIONAL_TESTING = FunctionalTesting(
+    bases=(FIXTURE, WSGI_SERVER_FIXTURE),
+    name="FieldUpdaterLayer:FunctionalTesting",
+)
+
+RESTAPI_TESTING = FunctionalTesting(
+    bases=(FIXTURE, WSGI_SERVER_FIXTURE),
+    name="FieldUpdaterLayer:RestAPITesting",
+)
+
+ACCEPTANCE_TESTING = FunctionalTesting(
+    bases=(
+        FIXTURE,
+        REMOTE_LIBRARY_BUNDLE_FIXTURE,
+        WSGI_SERVER_FIXTURE,
+    ),
+    name="FieldUpdaterLayer:AcceptanceTesting",
 )

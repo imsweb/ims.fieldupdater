@@ -26,34 +26,36 @@ def get_behav(name):
 
 
 class MassEditForm(BrowserView):
-    template = ViewPageTemplateFile('mass.pt')
+    template = ViewPageTemplateFile("mass.pt")
     unsupported = None
 
     def __call__(self):
-        if not self.request.form.get('form.button.Merge', '') and not self.request.form.get('form.button.Delete', ''):
+        if not self.request.form.get("form.button.Merge", "") and not self.request.form.get("form.button.Delete", ""):
             return self.template({})
 
-        schema = self.request.get('schema', None)
-        field = self.request.get('field', None)
-        fkey = self.request.get('fkey', None)
-        match = self.request.get('match', None)
-        replacement = self.request.get('replacement_marker', None)
+        schema = self.request.get("schema", None)
+        field = self.request.get("field", None)
+        fkey = self.request.get("fkey", None)
+        match = self.request.get("match", None)
+        replacement = self.request.get("replacement_marker", None)
 
-        if self.request.form.get('form.button.Merge', ''):
+        if self.request.form.get("form.button.Merge", ""):
             if replacement:
                 try:
                     self.replace_term(schema, field, fkey, match)
                 except Exception as e:
-                    api.portal.show_message(message='Failed to validate: %s' % e.__repr__(), request=self.request,
-                                            type='error')
+                    api.portal.show_message(
+                        message=f"Failed to validate: {e.__repr__()}", request=self.request, type="error"
+                    )
             else:
-                api.portal.show_message(message='Please enter a replacement value.', request=self.request)
-        elif self.request.form.get('form.button.Delete', ''):
+                api.portal.show_message(message="Please enter a replacement value.", request=self.request)
+        elif self.request.form.get("form.button.Delete", ""):
             try:
                 self.delete_term(schema, field, fkey, match)
             except Exception as e:
-                api.portal.show_message(message='Failed to validate: %s' % e.__repr__(), request=self.request,
-                                        type='error')
+                api.portal.show_message(
+                    message=f"Failed to validate: {e.__repr__()}", request=self.request, type="error"
+                )
 
         return self.template()
 
@@ -64,14 +66,14 @@ class MassEditForm(BrowserView):
         :return: dotted name of interfaces
         """
         behaviors = tuple([behav[1].interface.__identifier__ for behav in getUtilitiesFor(IBehavior)])
-        catalog = api.portal.get_tool('portal_catalog')
-        interfaces = sorted(list(set(catalog.uniqueValuesFor('object_provides') + behaviors)),
-                            key=lambda term: term.split('.')[-1])
+        catalog = api.portal.get_tool("portal_catalog")
+        interfaces = sorted(set(catalog.uniqueValuesFor("object_provides") + behaviors),
+                            key=lambda term: term.split(".")[-1])
         for interface in interfaces:
             if get_behav(interface).names():
                 yield {
-                    'id': interface,
-                    'title': interface.split('.')[-1],
+                    "id": interface,
+                    "title": interface.split(".")[-1],
                 }
 
     def schema_matches(self, schema):
@@ -80,45 +82,41 @@ class MassEditForm(BrowserView):
         :param schema: dotted name interface
         :return: int
         """
-        catalog = api.portal.get_tool('portal_catalog')
-        if schema in catalog.uniqueValuesFor('object_provides'):
+        catalog = api.portal.get_tool("portal_catalog")
+        if schema in catalog.uniqueValuesFor("object_provides"):
             return len(catalog(object_provides=schema))
         else:
-            return 'unknown (cannot get a subset for behavior interfaces)'
+            return "unknown (cannot get a subset for behavior interfaces)"
 
     def get_fields(self):
         """
         Get all fields for a schema
         :return: fields
         """
-        schema = self.request.get('schema', None)
+        schema = self.request.get("schema", None)
         if not schema:
             return
         interface = get_behav(schema)
         for name in interface.names():
-            if interface[name] and hasattr(interface[name], 'title'):
-                yield {
-                    'id': name,
-                    'title': '%s [%s]' % (interface[name].title, name)
-                }
+            if interface[name] and hasattr(interface[name], "title"):
+                yield {"id": name, "title": f"{interface[name].title} [{name}]"}
 
     def is_dg(self):
         """
         DataGridField (collective.z3cform.datagridfield) support. Lists with dicts
         :return: bool
         """
-        schema = self.request.get('schema', None)
-        field = self.request.get('field', None)
+        schema = self.request.get("schema", None)
+        field = self.request.get("field", None)
         if not field or not schema:
             return
         interface = get_behav(schema)
-        return hasattr(interface[field], 'value_type') and isinstance(interface[field].value_type, DictRow)
+        return hasattr(interface[field], "value_type") and isinstance(interface[field].value_type, DictRow)
 
     def get_dgschema(self):
-        """ Look up the schema used for the dg field
-        """
-        schema = self.request.get('schema', None)
-        field = self.request.get('field', None)
+        """Look up the schema used for the dg field"""
+        schema = self.request.get("schema", None)
+        field = self.request.get("field", None)
         if not field or not schema:
             return
         interface = get_behav(schema)
@@ -132,31 +130,27 @@ class MassEditForm(BrowserView):
         dg_schema = self.get_dgschema()
         for dg_field in dg_schema.names():
             yield {
-                'id': dg_field,
-                'title': dg_schema[dg_field].title,
+                "id": dg_field,
+                "title": dg_schema[dg_field].title,
             }
 
-    def get_values(self):
+    def get_values(self):  # noqa: C901
         """
-        Find all of the current values for objects that provide this schema
+        Find all the current values for objects that provide this schema
 
         :return: values
         """
         self.unsupported = None
-        schema = self.request.get('schema', None)
-        field = self.request.get('field', None)
-        fkey = self.request.get('fkey', None)
+        schema = self.request.get("schema", None)
+        field = self.request.get("field", None)
+        fkey = self.request.get("fkey", None)
 
-        if self.is_dg() and not (schema and field and fkey):
-            return
-        elif not self.is_dg() and not (schema and field):
+        if (self.is_dg() and not (schema and field and fkey)) or (not self.is_dg() and not (schema and field)):
             return
         values = set()
-        catalog = api.portal.get_tool('portal_catalog')
-        if schema in catalog.uniqueValuesFor('object_provides'):
-            query = catalog(object_provides=schema)
-        else:
-            query = catalog()
+        catalog = api.portal.get_tool("portal_catalog")
+        query = catalog(object_provides=schema) if schema in catalog.uniqueValuesFor("object_provides") else catalog()
+
         for brain in query:
             obj = brain.getObject()
             field_value = getattr(obj, field, None)
@@ -164,19 +158,19 @@ class MassEditForm(BrowserView):
                 continue
             if field_value and isinstance(field_value, str):
                 values.add(field_value)
-            elif field_value and isinstance(field_value, tuple) or isinstance(field_value, list):
+            elif field_value and isinstance(field_value, tuple | list):
                 for item_value in field_value:
-                    if fkey:
+                    if fkey:  # dg
                         if item_value[fkey] and isinstance(item_value[fkey], str):
                             values.add(item_value[fkey])
-                    else:
+                    else:  # regular list or tuple
                         if item_value and isinstance(item_value, str):
                             values.add(item_value)
-            elif field_value and (isinstance(field_value, datetime.datetime) or isinstance(field_value, datetime.date)):
+            elif field_value and isinstance(field_value, datetime.datetime | datetime.date):
                 values.add(field_value)
             else:
                 self.unsupported = field_value.__class__.__name__
-        return sorted(list(values))
+        return sorted(values)
 
     def results(self):
         """
@@ -184,10 +178,10 @@ class MassEditForm(BrowserView):
 
         :return: brains
         """
-        schema = self.request.get('schema', None)
-        field = self.request.get('field', None)
-        fkey = self.request.get('fkey', None)
-        match = self.request.get('match', None)
+        schema = self.request.get("schema", None)
+        field = self.request.get("field", None)
+        fkey = self.request.get("fkey", None)
+        match = self.request.get("match", None)
         if not schema or not field:
             return
         if self.is_dg() and not fkey:
@@ -195,24 +189,20 @@ class MassEditForm(BrowserView):
         if not match:
             return
 
-        catalog = api.portal.get_tool('portal_catalog')
+        catalog = api.portal.get_tool("portal_catalog")
         _results = []
-        if schema in catalog.uniqueValuesFor('object_provides'):
-            query = catalog(object_provides=schema)
-        else:
-            query = catalog()
+        query = catalog(object_provides=schema) if schema in catalog.uniqueValuesFor("object_provides") else catalog()
         for brain in query:
             obj = brain.getObject()
             field_value = getattr(obj, field, None)
-            if field_value == match and isinstance(field_value, str):
-                _results.append(brain)
-            elif (isinstance(field_value, tuple) or isinstance(field_value, list)) and match in field_value:
-                _results.append(brain)
-            elif fkey and match in [item_value[fkey] for item_value in field_value]:
-                _results.append(brain)
-            elif isinstance(field_value, datetime.date) and DateTime(match).asdatetime().date() == field_value:
-                _results.append(brain)
-            elif isinstance(field_value, datetime.date) and DateTime(match).asdatetime() == field_value:
+            checks = [
+                field_value == match and isinstance(field_value, str),  # str
+                isinstance(field_value, tuple | list) and match in field_value,  # iterator
+                fkey and match in [item_value[fkey] for item_value in field_value],  # dg
+                isinstance(field_value, datetime.date) and DateTime(match).asdatetime().date() == field_value,
+                isinstance(field_value, datetime.date) and DateTime(match).asdatetime() == field_value
+            ]
+            if any(checks):
                 _results.append(brain)
         return _results
 
@@ -237,31 +227,36 @@ class MassEditForm(BrowserView):
                 # for some reason some things that should come in as unicode are coming in as strings
                 replacement = IDataConverter(widget).toFieldValue(IDataConverter(widget).toWidgetValue(replacement))
         if not replacement or replacement is NO_VALUE:
-            api.portal.show_message(message=_('No replacement value given'), request=self.request, type='error')
+            api.portal.show_message(message=_("No replacement value given"), request=self.request, type="error")
             return
 
         results = self.results()
         for brain in results:
-            obj = brain.getObject()
-            field_value = getattr(obj, field, None)
+            self.set_value_by_type(brain, schema, field, fkey, match, replacement)
+        api.portal.show_message(
+            message=_(f"Replaced term in {len(results)} records"), request=self.request, type="info"
+        )
 
-            if isinstance(field_value, str) or \
-                    isinstance(field_value, datetime.date) or isinstance(field_value, datetime.datetime):
-                self.set_value(obj, schema, field, replacement)
-            elif isinstance(field_value, tuple) or isinstance(field_value, list):
-                if fkey:
-                    for item_value in field_value:
-                        if item_value[fkey] == match:
-                            item_value[fkey] = replacement
-                    self.set_value(obj, schema, field, field_value)
+    def set_value_by_type(self, brain, schema, field, fkey, match, replacement):
+        """ Set value based on field value type """
+        obj = brain.getObject()
+
+        field_value = getattr(obj, field, None)
+        if isinstance(field_value, str | datetime.date | datetime.datetime):
+            self.set_value(obj, schema, field, replacement)
+        elif isinstance(field_value, tuple | list):
+            if fkey:
+                for item_value in field_value:
+                    if item_value[fkey] == match:
+                        item_value[fkey] = replacement
+                self.set_value(obj, schema, field, field_value)
+            else:
+                if replacement in field_value:
+                    field_value = [item_value for item_value in field_value if item_value != match]
                 else:
-                    if replacement in field_value:
-                        field_value = [item_value for item_value in field_value if item_value != match]
-                    else:
-                        field_value = [item_value == match and replacement or item_value for item_value in field_value]
-                    self.set_value(obj, schema, field, field_value)
-        api.portal.show_message(message=_('Replaced term in {} records'.format(len(results))),
-                                request=self.request, type='info')
+                    field_value = [(item_value == match and replacement) or item_value for item_value in
+                                   field_value]
+                self.set_value(obj, schema, field, field_value)
 
     def delete_term(self, schema, field, fkey, match):
         """
@@ -278,21 +273,23 @@ class MassEditForm(BrowserView):
             obj = brain.getObject()
             field_value = getattr(obj, field, None)
 
-            if isinstance(field_value, tuple) or isinstance(field_value, list):
+            if isinstance(field_value, tuple | list):
                 if fkey:
                     for item_value in field_value:
                         if item_value[fkey] == match:
                             item_value[fkey] = None
                     # if this was the only value in the row, delete the row
-                    field_value = [item_value for item_value in field_value if
-                                   [i for i in list(item_value.values()) if i]]
+                    field_value = [
+                        item_value for item_value in field_value if [i for i in list(item_value.values()) if i]
+                    ]
                 else:
                     field_value = [item_value for item_value in field_value if item_value != match]
                 self.set_value(obj, schema, field, field_value)
             else:
                 self.set_value(obj, schema, field, None)
-        api.portal.show_message(message=_('Removed term in {} records'.format(len(self.results()))),
-                                request=self.request, type='info')
+        api.portal.show_message(
+            message=_(f"Removed term in {len(self.results())} records"), request=self.request, type="info"
+        )
 
     def set_value(self, obj, dottedname, field, field_value, attempts=0):
         """
@@ -318,8 +315,9 @@ class MassEditForm(BrowserView):
                     field_value = str(field_value)
                     return self.set_value(obj, dottedname, field, field_value, attempts)
             else:
-                api.portal.show_message(message='Failed to validate: %s' % e.__repr__(), request=self.request,
-                                        type='error')
+                api.portal.show_message(
+                    message=f"Failed to validate: {e.__repr__()}", request=self.request, type="error"
+                )
         else:
             setattr(obj, field, field_value)
             notify(ObjectModifiedEvent(obj))
@@ -335,36 +333,30 @@ class MassEditForm(BrowserView):
         :return: widget
         """
         if self.is_dg():
-            fkey = self.request['fkey']
+            fkey = self.request["fkey"]
             field = self.get_dgschema()[fkey]
         else:
-            schema = self.request.get('schema', None)
+            schema = self.request.get("schema", None)
             schema = get_behav(schema)
-            field = self.request.get('field', None)
+            field = self.request.get("field", None)
             field = schema[field]
-            if hasattr(field, 'value_type'):
+            if hasattr(field, "value_type"):
                 field = field.value_type
 
         widget = getMultiAdapter((field, self.request), IFieldWidget)
-        widget.name = 'replacement'
+        widget.name = "replacement"
         widget.update()
         return widget
 
 
 class SchemaFinderForm(BrowserView):
     def get_types(self):
-        catalog = api.portal.get_tool('portal_catalog')
-        return sorted(catalog.uniqueValuesFor('portal_type'))
+        catalog = api.portal.get_tool("portal_catalog")
+        return sorted(catalog.uniqueValuesFor("portal_type"))
 
     def schemas(self):
-        content_type = self.request['content_type']
-        type_info = api.portal.get_tool('portal_types').getTypeInfo(content_type)
-        yield {
-            'id': type_info.schema,
-            'title': type_info.schema.split('.')[-1]
-        }
+        content_type = self.request["content_type"]
+        type_info = api.portal.get_tool("portal_types").getTypeInfo(content_type)
+        yield {"id": type_info.schema, "title": type_info.schema.split(".")[-1]}
         for behav in type_info.behaviors:
-            yield {
-                'id': behav,
-                'title': behav.split('.')[-1]
-            }
+            yield {"id": behav, "title": behav.split(".")[-1]}
