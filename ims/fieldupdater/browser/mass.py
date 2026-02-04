@@ -1,14 +1,14 @@
 import datetime
 
 import plone.api as api
-from DateTime import DateTime
-from Products.Five import BrowserView
-from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from collective.z3cform.datagridfield.row import DictRow
+from DateTime import DateTime
 from plone.behavior.interfaces import IBehavior
 from plone.dexterity.events import EditFinishedEvent
 from plone.dexterity.utils import resolveDottedName
-from z3c.form.interfaces import IFieldWidget, NO_VALUE, IDataConverter
+from Products.Five import BrowserView
+from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+from z3c.form.interfaces import NO_VALUE, IDataConverter, IFieldWidget
 from zope.component import getMultiAdapter, getUtilitiesFor, queryUtility
 from zope.event import notify
 from zope.lifecycleevent import ObjectModifiedEvent
@@ -67,14 +67,22 @@ class MassEditForm(BrowserView):
         """
         behaviors = tuple([behav[1].interface.__identifier__ for behav in getUtilitiesFor(IBehavior)])
         catalog = api.portal.get_tool("portal_catalog")
-        interfaces = sorted(set(catalog.uniqueValuesFor("object_provides") + behaviors),
-                            key=lambda term: term.split(".")[-1])
+        interfaces = sorted(
+            set(catalog.uniqueValuesFor("object_provides") + behaviors), key=lambda term: term.split(".")[-1]
+        )
+
         for interface in interfaces:
-            if get_behav(interface).names():
-                yield {
-                    "id": interface,
-                    "title": interface.split(".")[-1],
-                }
+            try:
+                if get_behav(interface).names():
+                    yield {
+                        "id": interface,
+                        "title": interface.split(".")[-1],
+                    }
+            except ModuleNotFoundError:
+                api.portal.show_message(
+                    f"Failed to find interface: {interface}. This is registered as a behavior or noted as a provided interface in the catalog, but the class does not exist.",
+                    type="error",
+                )
 
     def schema_matches(self, schema):
         """
@@ -200,7 +208,7 @@ class MassEditForm(BrowserView):
                 isinstance(field_value, tuple | list) and match in field_value,  # iterator
                 fkey and match in [item_value[fkey] for item_value in field_value],  # dg
                 isinstance(field_value, datetime.date) and DateTime(match).asdatetime().date() == field_value,
-                isinstance(field_value, datetime.date) and DateTime(match).asdatetime() == field_value
+                isinstance(field_value, datetime.date) and DateTime(match).asdatetime() == field_value,
             ]
             if any(checks):
                 _results.append(brain)
@@ -238,7 +246,7 @@ class MassEditForm(BrowserView):
         )
 
     def set_value_by_type(self, brain, schema, field, fkey, match, replacement):
-        """ Set value based on field value type """
+        """Set value based on field value type"""
         obj = brain.getObject()
 
         field_value = getattr(obj, field, None)
@@ -254,8 +262,7 @@ class MassEditForm(BrowserView):
                 if replacement in field_value:
                     field_value = [item_value for item_value in field_value if item_value != match]
                 else:
-                    field_value = [(item_value == match and replacement) or item_value for item_value in
-                                   field_value]
+                    field_value = [(item_value == match and replacement) or item_value for item_value in field_value]
                 self.set_value(obj, schema, field, field_value)
 
     def delete_term(self, schema, field, fkey, match):
