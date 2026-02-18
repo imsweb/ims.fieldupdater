@@ -15,7 +15,7 @@
          tal:define="
            errors python:request.get('errors', {});
            search python:request.get('search', '');
-           schema python:request.get('schema', '');
+           portal_type python:request.get('portal_type', '');
            field python:request.get('field', '');
            fkey python:request.get('fkey', '');
            match python:request.get('match', '');
@@ -24,10 +24,10 @@
          "
     >
 
-      <h1 i18n:translate="heading_schema_field_manager">Schema Field Manager</h1>
+      <h1 i18n:translate="heading_schema_field_manager">Content Field Manager</h1>
 
       <div class="documentDescription">
-        The Schema field manager allows you to delete and merge fields in your portal. As a reminder, you can
+        The portal_type field manager allows you to delete and merge fields in your portal. As a reminder, you can
         use the
         <a href="${context/absolute_url}/manage_UndoForm"
            target="_blank"
@@ -38,36 +38,32 @@
       </div>
 
       <tal:schema_fields tal:define="
-                           schemas view/get_schemas;
+                           portal_types view/get_types;
                          ">
         <form action="${context/absolute_url}/mass-edit"
               method="get"
         >
           <fieldset>
             <legend>
-                    Choose Schema
+                    Choose Type
             </legend>
-            <p>
-                    If you are unsure of the schema you are looking for but you know the content type, try the
-              <a href="${context/absolute_url}/schema-finder">schema finder</a>.
-            </p>
 
             <div class="field">
               <label class="form-label"
-                     for="schemafield"
-                     i18n:translate="label_schema_field"
+                     for="typefield"
+                     i18n:translate="label_typefield"
               >
-                        Schema
+                        Type
               </label>
 
               <select class="form-control"
-                      id="schemafield"
-                      name="schema"
+                      id="typefield"
+                      name="portal_type"
                       onchange="javascript:this.form.submit()"
               >
-                <option selected="${python:fld['id']==schema}"
+                <option selected="${python:fld['id']==portal_type}"
                         value="${fld/id}"
-                        tal:repeat="fld schemas"
+                        tal:repeat="fld portal_types"
                         i18n:domain="plone"
                         i18n:translate=""
                 >
@@ -76,18 +72,18 @@
               </select>
 
               <span tal:define="
-                      schema_matches python:view.schema_matches(schema);
+                      type_matches python:view.type_matches(portal_type);
                     "
-                    tal:condition="schema"
+                    tal:condition="portal_type"
               >
-                        Objects providing this interface: ${schema_matches}
+                        Objects using this field: ${type_matches}
               </span>
             </div>
 
             <div class="formControls">
               <input class="btn btn-primary"
                      type="submit"
-                     value="Select Schema"
+                     value="Select Type"
                      i18n:attributes="value"
               />
             </div>
@@ -96,7 +92,7 @@
         </form>
       </tal:schema_fields>
 
-      <tal:schema_selected condition="schema">
+      <tal:schema_selected condition="portal_type">
         <form action="${context/absolute_url}/mass-edit"
               method="get"
               tal:define="
@@ -104,9 +100,9 @@
               "
         >
 
-          <input name="schema"
+          <input name="portal_type"
                  type="hidden"
-                 value="${schema}"
+                 value="${portal_type}"
           />
           <fieldset id="fieldset-schema">
             <legend>
@@ -155,9 +151,9 @@
               "
         >
 
-          <input name="schema"
+          <input name="portal_type"
                  type="hidden"
-                 value="${schema}"
+                 value="${portal_type}"
           />
           <input name="field"
                  type="hidden"
@@ -215,9 +211,9 @@
               "
         >
 
-          <input name="schema"
+          <input name="portal_type"
                  type="hidden"
-                 value="${schema}"
+                 value="${portal_type}"
           />
           <input name="field"
                  type="hidden"
@@ -278,9 +274,9 @@
                 action string:${context/absolute_url}/mass-edit;
               "
         >
-          <input name="schema"
+          <input name="portal_type"
                  type="hidden"
-                 value="${schema}"
+                 value="${portal_type}"
           />
           <input name="field"
                  type="hidden"
