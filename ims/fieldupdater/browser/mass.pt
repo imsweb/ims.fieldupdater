@@ -110,13 +110,15 @@
             </legend>
 
             <div class="field">
-              <label for="fieldfield"
+              <label class="form-label"
+                     for="fieldfield"
                      i18n:translate="label_field_field"
               >
                         Field
               </label>
 
-              <select id="fieldfield"
+              <select class="form-control"
+                      id="fieldfield"
                       name="field"
                       onchange="javascript:this.form.submit()"
               >
@@ -165,13 +167,15 @@
             </legend>
 
             <div class="field">
-              <label for="fkeyfield"
+              <label class="form-label"
+                     for="fkeyfield"
                      i18n:translate="labelfkey_field"
               >
                         Key
               </label>
 
-              <select id="dgkeyfield"
+              <select class="form-control"
+                      id="dgkeyfield"
                       name="fkey"
                       onchange="javascript:this.form.submit()"
               >
@@ -229,13 +233,15 @@
             </legend>
 
             <div class="field">
-              <label for="fkeyfield"
+              <label class="form-label"
+                     for="fkeyfield"
                      i18n:translate="labelfkey_field"
               >
                         Matching Value
               </label>
 
-              <select id="valuefield"
+              <select class="form-control"
+                      id="valuefield"
                       name="match"
                       onchange="javascript:this.form.submit()"
               >
