@@ -43,7 +43,6 @@ omit = ["venv", "*/test*", "*upgrades.py"]
 path = "ims/fieldupdater/__init__.py"
 
 [tool.hatch.build]
-strict-naming = false
 packages = ["ims"]
 
 [tool.hatch.envs.default.scripts]

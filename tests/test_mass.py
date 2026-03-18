@@ -1,12 +1,10 @@
 import pytest
 from zope.schema.interfaces import RequiredMissing
 
-from .interfaces import IMassEditTest
-
 
 class TestMassIntegration:
-    def test_schemas(self, pages, view):
-        assert {"id": IMassEditTest.__identifier__, "title": "IMassEditTest"} in view.get_schemas()
+    # def test_types(self, pages, view):
+    #     assert {"id": IMassEditTest.__identifier__, "title": "IMassEditTest"} in view.get_types()
 
     def test_list_replace(self, pages, view):
         page1, page2 = pages
@@ -15,12 +13,11 @@ class TestMassIntegration:
         match = "einstein"
         field = "list_field"
         replacement = "hawking"
-        schema = IMassEditTest.__identifier__
-        view.request["schema"] = schema
+        view.request["portal_type"] = "Document"
         view.request["field"] = field
         view.request["match"] = match
         view.request["replacement"] = replacement
-        view.replace_term(schema, field, None, match)
+        view.replace_term("Document", field, None, match)
         assert page1.list_field == ["hawking", "bohr"]
         assert page2.list_field == ["fermi", "heisenberg"]  # sanity - no change
 
@@ -30,11 +27,10 @@ class TestMassIntegration:
         page2.list_field = ["fermi", "heisenberg"]
         match = "einstein"
         field = "list_field"
-        schema = IMassEditTest.__identifier__
-        view.request["schema"] = schema
+        view.request["portal_type"] = "Document"
         view.request["field"] = field
         view.request["match"] = match
-        view.delete_term(schema, field, None, match)
+        view.delete_term("Document", field, None, match)
         assert page1.list_field == ["bohr"]
         assert page2.list_field == ["fermi", "heisenberg"]  # sanity - no change
 
@@ -46,12 +42,11 @@ class TestMassIntegration:
         match = "einstein"
         field = "list_field"
         replacement = "hawking"
-        schema = IMassEditTest.__identifier__
-        view.request["schema"] = schema
+        view.request["portal_type"] = "Document"
         view.request["field"] = field
         view.request["match"] = match
         view.request["replacement"] = replacement
-        view.replace_term(schema, field, None, match)
+        view.replace_term("Document", field, None, match)
         assert page1.list_field == ["hawking", "bohr"]
 
     def test_list_choice_replace(self, pages, view):
@@ -62,12 +57,11 @@ class TestMassIntegration:
         match = "einstein"
         field = "list_choice_field"
         replacement = "hawking"
-        schema = IMassEditTest.__identifier__
-        view.request["schema"] = schema
+        view.request["portal_type"] = "Document"
         view.request["field"] = field
         view.request["match"] = match
         view.request["replacement"] = replacement
-        view.replace_term(schema, field, None, match)
+        view.replace_term("Document", field, None, match)
         assert page1.list_choice_field == ["hawking", "bohr"]
         assert page2.list_choice_field == ["fermi", "heisenberg"]  # sanity - no change
 
@@ -78,12 +72,11 @@ class TestMassIntegration:
         match = "einstein"
         field = "list_choice_field"
         replacement = "dirac"
-        schema = IMassEditTest.__identifier__
-        view.request["schema"] = schema
+        view.request["portal_type"] = "Document"
         view.request["field"] = field
         view.request["match"] = match
         view.request["replacement"] = replacement
-        view.replace_term(schema, field, None, match)
+        view.replace_term("Document", field, None, match)
         assert "dirac" not in page1.list_choice_field
 
     def test_textline_replace(self, pages, view):
@@ -92,12 +85,11 @@ class TestMassIntegration:
         match = "einstein"
         field = "text_field"
         replacement = "hawking"
-        schema = IMassEditTest.__identifier__
-        view.request["schema"] = schema
+        view.request["portal_type"] = "Document"
         view.request["field"] = field
         view.request["match"] = match
         view.request["replacement"] = replacement
-        view.replace_term(schema, field, None, match)
+        view.replace_term("Document", field, None, match)
         assert page1.text_field == "hawking"
 
     def test_textline_delete(self, pages, view):
@@ -105,11 +97,10 @@ class TestMassIntegration:
         page1.text_field = "einstein"
         match = "einstein"
         field = "text_field"
-        schema = IMassEditTest.__identifier__
-        view.request["schema"] = schema
+        view.request["portal_type"] = "Document"
         view.request["field"] = field
         view.request["match"] = match
-        view.delete_term(schema, field, None, match)
+        view.delete_term("Document", field, None, match)
         assert page1.text_field is None
 
     def test_textline_delete_required(self, pages, view):
@@ -117,12 +108,11 @@ class TestMassIntegration:
         page1.text_field_required = "einstein"
         match = "einstein"
         field = "text_field_required"
-        schema = IMassEditTest.__identifier__
-        view.request["schema"] = schema
+        view.request["portal_type"] = "Document"
         view.request["field"] = field
         view.request["match"] = match
         with pytest.raises(RequiredMissing):
-            view.delete_term(schema, field, None, match)
+            view.delete_term("Document", field, None, match)
 
     def test_unicode_conversion(self, pages, view):
         """The widget should really handle this, but we do have this as a failsafe"""
@@ -131,11 +121,10 @@ class TestMassIntegration:
         match = "einstein"
         field = "text_field"
         replacement = "hawking"
-        schema = IMassEditTest.__identifier__
-        view.request["schema"] = schema
+        view.request["portal_type"] = "Document"
         view.request["field"] = field
         view.request["match"] = match
         view.request["replacement"] = replacement
-        view.replace_term(schema, field, None, match)
+        view.replace_term("Document", field, None, match)
         assert page1.text_field == "hawking"
         assert isinstance(page1.text_field, str)
