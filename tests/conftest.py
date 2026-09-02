@@ -1,7 +1,8 @@
 import pytest
-from ims.fieldupdater.testing import FUNCTIONAL_TESTING, INTEGRATION_TESTING
 from plone import api
 from pytest_plone import fixtures_factory
+
+from ims.fieldupdater.testing import FUNCTIONAL_TESTING, INTEGRATION_TESTING
 
 from .interfaces import IMassEditTest
 
@@ -16,12 +17,10 @@ except ImportError:
 pytest_plugins = ["pytest_plone"]
 
 globals().update(
-    fixtures_factory(
-        (
-            (FUNCTIONAL_TESTING, "functional"),
-            (INTEGRATION_TESTING, "integration"),
-        )
-    )
+    fixtures_factory((
+        (FUNCTIONAL_TESTING, "functional"),
+        (INTEGRATION_TESTING, "integration"),
+    ))
 )
 
 

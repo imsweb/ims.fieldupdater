@@ -4,15 +4,13 @@ from zope.interface import provider
 from zope.schema import Choice, Date, Datetime, List, TextLine
 from zope.schema.vocabulary import SimpleTerm, SimpleVocabulary
 
-list_field_opts = SimpleVocabulary(
-    [
-        SimpleTerm(value="fermi", title="Fermi"),
-        SimpleTerm(value="einstein", title="Einstein"),
-        SimpleTerm(value="bohr", title="Bohr"),
-        SimpleTerm(value="heisenberg", title="Heisenberg"),
-        SimpleTerm(value="hawking", title="Hawking"),
-    ]
-)
+list_field_opts = SimpleVocabulary([
+    SimpleTerm(value="fermi", title="Fermi"),
+    SimpleTerm(value="einstein", title="Einstein"),
+    SimpleTerm(value="bohr", title="Bohr"),
+    SimpleTerm(value="heisenberg", title="Heisenberg"),
+    SimpleTerm(value="hawking", title="Hawking"),
+])
 
 
 @provider(IFormFieldProvider)

@@ -27,7 +27,7 @@ documentation = "https://git.imsweb.com/plone/ims.fieldupdater"
 repository = "https://git.imsweb.com/plone/ims.fieldupdater"
 
 [project.optional-dependencies]
-test = ["plone.app.testing", "plone.mocktestcase", "formencode", "pytest-plone", "plone.app.robotframework"]
+test = ["ims.migrations[test]"]
 
 [project.entry-points."plone.autoinclude.plugin"]
 target = "plone"
@@ -112,6 +112,12 @@ lint.ignore = [
     "S324",
     "SIM105"
 ]
+
+[tool.ruff.lint.isort]
+known-first-party = [
+    "ims",
+]
+combine-as-imports = false
 
 [tool.ruff.format]
 preview = true

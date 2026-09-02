@@ -80,7 +80,7 @@ class TestMassIntegration:
         assert "dirac" not in page1.list_choice_field
 
     def test_textline_replace(self, pages, view):
-        page1, page2 = pages
+        page1, _page2 = pages
         page1.text_field = "einstein"
         match = "einstein"
         field = "text_field"
@@ -93,7 +93,7 @@ class TestMassIntegration:
         assert page1.text_field == "hawking"
 
     def test_textline_delete(self, pages, view):
-        page1, page2 = pages
+        page1, _page2 = pages
         page1.text_field = "einstein"
         match = "einstein"
         field = "text_field"
@@ -104,7 +104,7 @@ class TestMassIntegration:
         assert page1.text_field is None
 
     def test_textline_delete_required(self, pages, view):
-        page1, page2 = pages
+        page1, _page2 = pages
         page1.text_field_required = "einstein"
         match = "einstein"
         field = "text_field_required"
@@ -116,7 +116,7 @@ class TestMassIntegration:
 
     def test_unicode_conversion(self, pages, view):
         """The widget should really handle this, but we do have this as a failsafe"""
-        page1, page2 = pages
+        page1, _page2 = pages
         page1.text_field = "einstein"
         match = "einstein"
         field = "text_field"
